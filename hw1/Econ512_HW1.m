@@ -20,6 +20,7 @@ b=[-2; 3; 10];
 C=A'*b;
 D=(A'*A)\b;
 E=sum(A);
+% The formula for E was different.
 F=A([1,3],1:2);
 x=A\b;
 
@@ -35,6 +36,7 @@ A5(A5>=10)=1;
 
 
 %% Question 6
+% csvread replaces NaNs with 0 which produces a little off estimates
 M = csvread('datahw1.csv');
 save('datahw1.mat','M');
 load('datahw1.mat');
