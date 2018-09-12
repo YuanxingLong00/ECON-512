@@ -19,8 +19,9 @@ A=[2, 4, 6;
 b=[-2; 3; 10];
 C=A'*b;
 D=(A'*A)\b;
-E=sum(A);
+E=sum(C);
 % The formula for E was different.
+% It is corrected by changing A to C.
 F=A([1,3],1:2);
 x=A\b;
 
