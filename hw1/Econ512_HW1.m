@@ -9,7 +9,7 @@ plot(X,Y1,'*',X,Y2,'*')
 %% Question 2
 step=(20-(-10))/199;
 X_2=-10:step:20;
-s=sum(X_2);
+s=sum(X_2)
 
 
 %% Question 3
@@ -17,27 +17,24 @@ A=[2, 4, 6;
     1, 7, 5; 
     3, 12, 4];
 b=[-2; 3; 10];
-C=A'*b;
-D=(A'*A)\b;
-E=sum(C);
-% The formula for E was different.
-% It is corrected by changing A to C.
-F=A([1,3],1:2);
-x=A\b;
+C=A'*b
+D=(A'*A)\b
+E=sum(C)
+F=A([1,3],1:2)
+x=A\b
 
 %% Question 4
 I=eye(5);
-B=kron(I, A);
+B=kron(I, A)
 
 
 %% Question 5
-A5= normrnd(10,5,5,3);
+A5= normrnd(10,5,5,3)
 A5(A5<10)=0;
 A5(A5>=10)=1;
-
+disp(A)
 
 %% Question 6
-% csvread replaces NaNs with 0 which produces a little off estimates
 M = csvread('datahw1.csv');
 save('datahw1.mat','M');
 load('datahw1.mat');
@@ -51,16 +48,4 @@ X=[x1 x2 x3];
 % I use a new function to find it. 
 [b_hat, se]= ols(y, X, 1)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+diary hw01.out
