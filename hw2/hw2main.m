@@ -11,6 +11,8 @@ jacob=jacobian(g,[x,y])
 clear
 f=@(x)[1-x(1)+x(1)*exp(2-x(1))/(1+exp(2-x(1))+exp(2-x(2))),1-x(2)+x(2)*exp(2-x(2))/(1+exp(2-x(1))+exp(2-x(2)))];
 p=[1.5;1.5] % why these parameter values? different people use these parameters. 
+% Independently, I tried (1,1) but find it works not very well. so I change
+% it to be (1.5, 1.5). But I'm sure that this is my independent selection. 
 fVal=f(p)'
 Jac=jacob(p)  % jacob function is defined seperately by using the result above
 iJac=inv(Jac)
