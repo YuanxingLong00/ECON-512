@@ -11,7 +11,7 @@ beta(i,:) =fminsearch(@ml,b);
 t(i)=toc;
 end
 time=mean(t);
-
+time=mean(t(1:32));
 
 
 %% Testing Broyden's method. 

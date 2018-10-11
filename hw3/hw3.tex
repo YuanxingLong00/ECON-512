@@ -99,7 +99,7 @@ S\left( \beta \right) =\sum\limits_{i=1}^{n}\left( y_{i}-e^{\beta ^{\prime
 \item Estimate the parameter vector $\beta$ using the maximum likelihood estimator computed via  
 the Nelder-Mead simplex method. \\[2em]
 
-Please check my matlab codes for the algorith. The MLE estimator is  [2.5924, -0.0333, 0.1162, -0.3572, 0.0783, -0.4131] when starting value[1,1,1,1,1,1] and the Nelder-Mead simplex method are used. \\[3em]
+Please check my matlab codes for the algorith. The MLE estimator is [2.5924, -0.0333, 0.1162, -0.3572, 0.0783, -0.4131] when starting value[1,1,1,1,1,1] and the Nelder-Mead simplex method are used. \\[3em]
 
 
 
@@ -136,7 +136,7 @@ robustness and time to convergence. Submit a short writeup summarizing your resu
 
 I select 100 starting points  and test the four approaches.\\
 
-For the first method, each time the maximum number of function evaluations is exceeded. So it is not robust. The average time of reaching the maximum number of function evaluations is 0.2788 second.\\
+For the first method, number of convergence is 32.Conditional on convergence, the average time to convergence is 0.2414 second.\\
 For the second method, number of convergence is 4, when we select the Broyden iteration number to be 100. And the average time to convergence is 0.024 second.\\
 For the third method, number of convergence is 91. And the average time to convergence is 0.0699 second.\\
 The fourth approach is the same as the first approach when specifying the starting value. \\
