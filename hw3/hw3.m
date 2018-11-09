@@ -45,4 +45,6 @@ options = optimset('PlotFcns',@optimplotfval, 'Display','iter');
 beta =fminsearch(@ml,beta0, options);
 beta
 
-%
+% Where is question 5? 
+% also, all the answers don't look right. did you try to squeeze the
+% stopping criteria?
