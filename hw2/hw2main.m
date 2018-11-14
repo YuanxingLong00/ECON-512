@@ -10,7 +10,9 @@ jacob=jacobian(g,[x,y])
 % Next specify the initial values for p, jacobian and fVal
 clear
 f=@(x)[1-x(1)+x(1)*exp(2-x(1))/(1+exp(2-x(1))+exp(2-x(2))),1-x(2)+x(2)*exp(2-x(2))/(1+exp(2-x(1))+exp(2-x(2)))];
-p=[1.5;1.5]
+p=[1.5;1.5] % why these parameter values? different people use these parameters. 
+% Independently, I tried (1,1) but find it works not very well. so I change
+% it to be (1.5, 1.5). But I'm sure that this is my independent selection. 
 fVal=f(p)'
 Jac=jacob(p)  % jacob function is defined seperately by using the result above
 iJac=inv(Jac)
@@ -31,7 +33,7 @@ for iter=1:maxit
     iJac = iJac + ( (d - u) * (d'*iJac) )/ (d'*u);
 end
 
-% Question 3 
+%% Question 3 
 clear
 p=[1.5;1.5]; % initial value for p
 pA=p(1);
@@ -74,7 +76,7 @@ if abs(pB-pBlag)<tol
 end
 end
 
-%Question 4
+%% Question 4
 clear 
 % initial guess for pA and pB
 pA=1.5;
@@ -92,7 +94,7 @@ for iter=1:maxit
 end
 
 
-%Question 5
+%% Question 5
 % need to modify it.
 clear
 pA=0:.2:3;
