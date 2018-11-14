@@ -1,3 +1,5 @@
+% all is great
+
 %% HW3 
 %% Q1 MLE using Nelder_Mead simplex 
 clear
