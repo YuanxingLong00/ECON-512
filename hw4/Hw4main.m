@@ -1,4 +1,5 @@
 %% HW 4 Calculating pi
+% all is good
 %% Question 1 using quasi-Monte Carlo
 clear
 rng(135)
@@ -16,6 +17,7 @@ pi=4*t/throw
 N=1000;
 h=1/N;
 t=0;
+% 
 for i=0.5:1:(N-0.5)
   for j=0.5:1:(N-0.5)
       if h*sqrt(i^2+j^2) <=1
