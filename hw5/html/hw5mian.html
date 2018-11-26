@@ -1,0 +1,320 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>hW5</title><meta name="generator" content="MATLAB 9.4"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-11-26"><meta name="DC.source" content="hw5mian.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>hW5</h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Part 1</a></li><li><a href="#2">Part 2</a></li><li><a href="#3">part 3</a></li><li><a href="#4">Part 4</a></li></ul></div><h2 id="1">Part 1</h2><pre class="codeinput">clear
+load(<span class="string">'hw5.mat'</span>);
+N=100;
+T=20;
+n=20;
+beta0=0.1;
+sigmabeta=1;
+gamma=0;
+[x, w]=qnwnorm(n, beta0, sigmabeta);
+F=@(y)((1+exp(-y)).^(-1));
+LisWs=zeros(n,N);
+<span class="keyword">for</span> s=1:n
+temp=data.X * x(s)+data.Z * gamma ;
+Fval=F(temp);
+Ls=(Fval.^ data.Y).*(Fval.^(1-data.Y));
+Lis=prod(Ls,1);
+LisWs(s,:)=Lis*w(s);
+<span class="comment">% logLs= (data.Y).*log(Fval)+ (1-data.Y).*log(1-Fval);</span>
+<span class="comment">% logLis= sum(logLs, 1);</span>
+<span class="comment">% LisWs(s,:)= exp(logLis)*w(s);</span>
+<span class="keyword">end</span>
+Li= mean(LisWs,1);
+logLi= log(Li);
+L=sum(logLi,2)
+
+<span class="comment">% The calculated log-likelihood function is  -1.5345e+03</span>
+</pre><pre class="codeoutput">
+L =
+
+  -1.5345e+03
+
+</pre><h2 id="2">Part 2</h2><pre class="codeinput">clear
+load(<span class="string">'hw5.mat'</span>);
+beta0=0.1;
+sigmabeta=1;
+gamma=0;
+N=100;
+T=20;
+S=100; <span class="comment">% simulation number</span>
+LiNS=zeros(S,N);
+F=@(y)((1+exp(-y)).^(-1));
+<span class="keyword">for</span> s=1:S
+beta=normrnd(beta0,sigmabeta,1,N);
+temp=bsxfun(@times, data.X,beta)+ data.Z * gamma  ;
+Fval=F(temp);
+Ls=(Fval.^ data.Y).*(Fval.^(1-data.Y));
+Lis=prod(Ls,1);
+LiNS(s,:)=Lis;
+<span class="keyword">end</span>
+Li=mean(LiNS,1);
+logLi= log(Li);
+L=sum(logLi,2)
+
+<span class="comment">% The calculated log-likelihood function is  -1.2385e+03</span>
+</pre><pre class="codeoutput">
+L =
+
+  -1.2353e+03
+
+</pre><h2 id="3">part 3</h2><pre class="codeinput">clear
+para=[0.1; 2; 1];  <span class="comment">% initial value</span>
+A=[ 0, 0, 0;
+    0, -1, 0;
+    0, 0, 0];
+b= [0; 0; 0];
+[para1, max1]= fmincon(@GuaQua, para, A, b)
+[para2, max2]= fmincon(@MC, para, A, b)
+<span class="comment">%  para1 =   0.4772   0.0147   0.0177   max1 = 1.4534e+03</span>
+<span class="comment">%  para2 =    1.4749   2.5202   0.4761  max2 = 2.6987e+03</span>
+<span class="comment">% The result is unstable.</span>
+</pre><pre class="codeoutput">
+Local minimum possible. Constraints satisfied.
+
+fmincon stopped because the size of the current step is less than
+the default value of the step size tolerance and constraints are 
+satisfied to within the default value of the constraint tolerance.
+
+
+
+
+para1 =
+
+    0.4772
+    0.0147
+    0.0177
+
+
+max1 =
+
+   1.4534e+03
+
+
+Local minimum possible. Constraints satisfied.
+
+fmincon stopped because the size of the current step is less than
+the default value of the step size tolerance and constraints are 
+satisfied to within the default value of the constraint tolerance.
+
+
+
+
+para2 =
+
+   -0.6050
+    1.3373
+    0.0165
+
+
+max2 =
+
+   1.2773e+03
+
+</pre><h2 id="4">Part 4</h2><pre class="codeinput">clear
+para= [1; 1; 1; 0.5; 1; 0.5]; <span class="comment">% initial value</span>
+A= [0,0,0,0,0,0;
+    0,0,0,0,0,0;
+    0,0,-1,0,0,0;
+    0,0,0,0,0,0;
+    0,0,0,0,-1,0;
+    0,0,0,0,0,0];
+b= [0;0;0;0;0;0];
+[para3, max3]= fmincon(@MC2, para, A, b)
+<span class="comment">% para3 =</span>
+<span class="comment">%    1.0001</span>
+<span class="comment">%    1.0003</span>
+<span class="comment">%    1.0000</span>
+<span class="comment">%    0.5002</span>
+<span class="comment">%    0.9998</span>
+<span class="comment">%    0.5004</span>
+<span class="comment">% max3 =</span>
+<span class="comment">%    1.6338e+03</span>
+</pre><pre class="codeoutput">
+Local minimum possible. Constraints satisfied.
+
+fmincon stopped because the size of the current step is less than
+the default value of the step size tolerance and constraints are 
+satisfied to within the default value of the constraint tolerance.
+
+
+
+
+para3 =
+
+    0.9964
+    1.0051
+    0.9986
+    0.5070
+    1.0003
+    0.4999
+
+
+max3 =
+
+   1.6455e+03
+
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2018a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% hW5
+
+%% Part 1
+clear
+load('hw5.mat');
+N=100;
+T=20;
+n=20;
+beta0=0.1;
+sigmabeta=1;
+gamma=0;
+[x, w]=qnwnorm(n, beta0, sigmabeta);
+F=@(y)((1+exp(-y)).^(-1));
+LisWs=zeros(n,N);
+for s=1:n
+temp=data.X * x(s)+data.Z * gamma ;
+Fval=F(temp);
+Ls=(Fval.^ data.Y).*(Fval.^(1-data.Y)); 
+Lis=prod(Ls,1);
+LisWs(s,:)=Lis*w(s);
+% logLs= (data.Y).*log(Fval)+ (1-data.Y).*log(1-Fval);
+% logLis= sum(logLs, 1);
+% LisWs(s,:)= exp(logLis)*w(s);
+end
+Li= mean(LisWs,1);
+logLi= log(Li);
+L=sum(logLi,2)
+
+% The calculated log-likelihood function is  -1.5345e+03
+
+%% Part 2
+clear
+load('hw5.mat');
+beta0=0.1;
+sigmabeta=1;
+gamma=0;
+N=100;
+T=20;
+S=100; % simulation number
+LiNS=zeros(S,N);
+F=@(y)((1+exp(-y)).^(-1));
+for s=1:S
+beta=normrnd(beta0,sigmabeta,1,N);
+temp=bsxfun(@times, data.X,beta)+ data.Z * gamma  ;
+Fval=F(temp);
+Ls=(Fval.^ data.Y).*(Fval.^(1-data.Y)); 
+Lis=prod(Ls,1);
+LiNS(s,:)=Lis;
+end
+Li=mean(LiNS,1);
+logLi= log(Li);
+L=sum(logLi,2)
+
+% The calculated log-likelihood function is  -1.2385e+03
+
+%% part 3
+clear
+para=[0.1; 2; 1];  % initial value
+A=[ 0, 0, 0;
+    0, -1, 0;
+    0, 0, 0];
+b= [0; 0; 0];
+[para1, max1]= fmincon(@GuaQua, para, A, b)
+[para2, max2]= fmincon(@MC, para, A, b)
+%  para1 =   0.4772   0.0147   0.0177   max1 = 1.4534e+03
+%  para2 =    1.4749   2.5202   0.4761  max2 = 2.6987e+03
+% The result is unstable. 
+
+
+%% Part 4
+clear
+para= [1; 1; 1; 0.5; 1; 0.5]; % initial value
+A= [0,0,0,0,0,0;
+    0,0,0,0,0,0;
+    0,0,-1,0,0,0;
+    0,0,0,0,0,0;
+    0,0,0,0,-1,0;
+    0,0,0,0,0,0];
+b= [0;0;0;0;0;0];
+[para3, max3]= fmincon(@MC2, para, A, b)
+% para3 =
+%    1.0001
+%    1.0003
+%    1.0000
+%    0.5002
+%    0.9998
+%    0.5004
+% max3 =
+%    1.6338e+03
+
+
+
+
+##### SOURCE END #####
+--></body></html>
