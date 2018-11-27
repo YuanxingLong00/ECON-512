@@ -80,10 +80,20 @@ bivariate normal distribution $N(\mu ,\Sigma )$.  Of course, it will be numerica
 The data set {\tt hw5.mat} contains 20 x 100 matrices of the variables $X,Z$, and $Y$.
 
 \begin{enumerate}
-	\item Assume $u_i=0\,\,\forall\,i$ (ie. take $u_i$ out of the model, so that $u_0=\sigma_u=\sigma_{u\beta}=0$). Use Gaussian Quadrature using 20 nodes to calculate the log-likelihood function when $\beta_0=0.1$, $\sigma_{\beta}=1$, and $\gamma=0$.
-	\item Now use Monte Carlo Methods using 100 nodes to calculate the log-likelihood function. 
-	\item Maximize (or minimize the negative) log-likelihood function with respect to the parameters using both integration techniques above. Use Matlab's fmincon without a supplied derivative to max (min) your objective function. 
-	\item Now allow $u_0\ne0$, so allow the parameters $\sigma_u$ and $\sigma_{\beta u}$ to be non-zero. Maximize the log-likelihood function, estimating all of the parameters, using Monte Carlo methods.
+	\item Assume $u_i=0\,\,\forall\,i$ (ie. take $u_i$ out of the model, so that $u_0=\sigma_u=\sigma_{u\beta}=0$). Use Gaussian Quadrature using 20 nodes to calculate the log-likelihood function when $\beta_0=0.1$, $\sigma_{\beta}=1$, and $\gamma=0$. \\[1em]
+	The calculated log-likelihood function is  -1.5345e+03. \\[1em]
+	\item Now use Monte Carlo Methods using 100 nodes to calculate the log-likelihood function. \\[1em]
+     The calculated log-likelihood function is  -1.2385e+03 \\[1em]
+	\item Maximize (or minimize the negative) log-likelihood function with respect to the parameters using both integration techniques above. Use Matlab's fmincon without a supplied derivative to max (min) your objective function.  \\[1em]
+	Initial value is para=[$\beta$, $\sigma_\beta$, $\gamma$]=[0.1; 2; 1] \\
+	The results using Guassian Quadrature are:\\
+	para1 = [0.4772, 0.0147, 0.0177]      max1 = -1.4534e+03 \\
+	The results using Monte Carlo Methods are:\\
+    para2 = [1.4749, 2.5202, 0.4761]     max2 = -2.6987e+03  \\[1em]
+	\item Now allow $u_0\ne0$, so allow the parameters $\sigma_u$ and $\sigma_{\beta u}$ to be non-zero. Maximize the log-likelihood function, estimating all of the parameters, using Monte Carlo methods.\\[1em]
+	Initial value is para=[$\beta_0$, $u_0$, $\sigma_\beta$, $\sigma_{\beta u}$, $\sigma_u$, $\gamma$]= [1; 1; 1; 0.5; 1; 0.5] \\
+	The results are: \\
+	para3 =[1.0001; 1.0003; 1.0000; 0.5002; 0.9998; 0.5004] max3 = -1.6338e+03 \\[1em]
 	\item For each estimation, report the starting value, argmax, and maximized value of the log-likelihood function.
 \end{enumerate}
 
