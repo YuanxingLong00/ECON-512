@@ -55,13 +55,17 @@ L=sum(logLi,2)
 
 %% part 3
 clear
-para=[0.1; 2; 1];  % initial value
+para=[-0.1; 2; 0];  % initial value
 A=[ 0, 0, 0;
     0, -1, 0;
     0, 0, 0];
 b= [0; 0; 0];
 [para1, min1]= fmincon(@GuaQua, para, A, b)
 [para2, min2]= fmincon(@MC, para, A, b)
+% Parameter estimates are wrong, wherever I try starting value. but they
+% differ with a starting value, which is a bad sign
+
+
 %  para1 =   0.4772   0.0147   0.0177   min1 = 1.4534e+03
 %  para2 =    1.4749   2.5202   0.4761  min2 = 2.6987e+03
 % The result is unstable. 
@@ -78,6 +82,9 @@ A= [0,0,0,0,0,0;
     0,0,0,0,0,0];
 b= [0;0;0;0;0;0];
 [para3, min3]= fmincon(@MC2, para, A, b)
+% these estimates are also wrong, something is wring with your function
+% calculation. try to check.
+
 % para3 =
 %    1.0001
 %    1.0003
