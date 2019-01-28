@@ -15,7 +15,7 @@ VI= zeros(I,J);
 for k=1:iter
    for i=1:I
       for j=1:J
-          VV=(ones(I,1).*s(i)-s').*p(j) + (V*P(:,j)).*delta;
+          VV=(ones(I,1).*s(i)-s').*p(j) -0.2*((ones(I,1).*s(i)-s').^1.5) + (V*P(:,j)).*delta;
           VVpartial=VV(1:i,:);
           VI(i,j)=max(VVpartial);
       end
@@ -26,7 +26,7 @@ for k=1:iter
        %to find policy function
           for i=1:I
            for j=1:J
-            VV=(ones(I,1).*s(i)-s').*p(j) + (V*P(:,j)).*delta;
+            VV=(ones(I,1).*s(i)-s').*p(j)-0.2*((ones(I,1).*s(i)-s').^1.5) + (V*P(:,j)).*delta;
             VVpartial=VV(1:i,:);
             [VI(i,j),sindex]=max(VVpartial);
             spol(i,j)=s(sindex);

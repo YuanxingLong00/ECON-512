@@ -29,36 +29,36 @@ Where $p_0 = 0.5$, $\rho = 0.5$, and $u$ is a mean-zero normal disturbance with 
 The initial stock of lumber may be anything from 0 to 100.
 %\footnote{Note that there is non-zero unconditional probability of price being negative, however it is very unlikely, so we will ignore it.} 
 \begin{enumerate}
-\item Formulate firm's dynamic optimization problem. Specifically, formulate the Bellman equation, identify state and policy variables, their spaces and transition probabilities. Assume initial stock is between 0 and 100.\\[2em]
+\item Formulate firm's dynamic optimization problem. Specifically, formulate the Bellman equation, identify state and policy variables, their spaces and transition probabilities. Assume initial stock is between 0 and 100.\\[1em]
 Let the initial stock be $s_0$. Then the Bellman equation is:
 $$ 
-V(s,p)= \max_{s' \in [0,s]} \{p(s-s')+\delta  \mathbb{E}[V(s', p')|p]\}
+V(s,p)= \max_{s' \in [0,s]} \{p(s-s')- 0.2*(s-s')^{1.5}+\delta  \mathbb{E}[V(s', p')|p]\}
 $$
 The state variables are $(s,p)$, the current stock and current market price. Policy variable is $s'$, the stock to hold for next period. The state space is $[0,s_0]\times [0, \infty]$. The policy space is $[0,s]$. The market price follows an AR(1) process, so the transition probability to any point state is zero. However, we can approximate the AR(1) process with a Markov process in question 2. 
 
 
-\item Take a look at {\tt tauchen.m} in the repository (you should know where), use it to generate grid that approximates process for $p_t$ with 21 grid points. \\[2em]
+\item Take a look at {\tt tauchen.m} in the repository (you should know where), use it to generate grid that approximates process for $p_t$ with 21 grid points. \\[1em]
 
 It's done in the programming.
 
-\item Solve the firm's problem using value function iteration. Plot the value of the firm depending on its initial stock (x-axis) and the current price of lumber, for $p \in{0.9, 1, 1.1}$.\\[2em]
+\item Solve the firm's problem using value function iteration. Plot the value of the firm depending on its initial stock (x-axis) and the current price of lumber, for $p \in{0.9, 1, 1.1}$.\\[1em]
 
 I solved the dynamic programming problem using the value function iteration. The relationship between firm value and initial stock when holding current price of lumber fixed is plotted as followed: \\
     \includegraphics[scale=0.2]{Vs0.jpg}
 
 
-\item Plot next period optimal stock (or harvest amount if you prefer) as a function of today's price for different amount of lumber left in stock.\\[2em]
+\item Plot next period optimal stock (or harvest amount if you prefer) as a function of today's price for different amount of lumber left in stock.\\[1em]
 
 The relationship between next period optimal stock and the price when holding amount of lumber left in stock as 25, 50 or 75 are plotted as:\\
     \includegraphics[scale=0.2]{spolp.jpg}
 
 
-\item Assume firm starts with stock of 100 and today's price is 1. Plot expected stock over time for 20 periods ahead. Include the 90 percent confidence interval. \\[2em]
+\item Assume firm starts with stock of 100 and today's price is 1. Plot expected stock over time for 20 periods ahead. Include the 90 percent confidence interval. \\[1em]
 
-According to my computation, the next period optimal stock  is 1 when today's stock is 100 and price is 1. Since I choose the states of stock to be 1, 2 ... and 100. The stock would stay 1 forever. In this case, the evolution of stocks is always staying 1. \\
+The expected stock decreases over time from 93 to about 10. The evolution process is illustrated as: \\
  \includegraphics[scale=0.2]{spath.jpg}
 
-\item Redo the 2-4 for coarse grid of 5 points in Tauchen's representation.\\[2em]
+\item Redo the 2-4 for coarse grid of 5 points in Tauchen's representation.\\[1em]
 
 I solved the dynamic programming problem using the value function iteration. The relationship between firm value and initial stock when holding current price of lumber fixed is plotted as followed: \\
     \includegraphics[scale=0.2]{Vs0_5.jpg} \\

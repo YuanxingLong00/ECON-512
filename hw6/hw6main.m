@@ -15,7 +15,7 @@ VI= zeros(I,J);
 for k=1:iter
    for i=1:I
       for j=1:J
-          VV=(ones(I,1).*s(i)-s').*p(j) + (V*P(:,j)).*delta;
+          VV=(ones(I,1).*s(i)-s').*p(j)-0.2*((ones(I,1).*s(i)-s').^1.5) + (V*P(:,j)).*delta;
           VVpartial=VV(1:i,:);
           VI(i,j)=max(VVpartial);
       end
@@ -26,7 +26,7 @@ for k=1:iter
        %to find policy function
           for i=1:I
            for j=1:J
-            VV=(ones(I,1).*s(i)-s').*p(j) + (V*P(:,j)).*delta;
+            VV=(ones(I,1).*s(i)-s').*p(j) -0.2*((ones(I,1).*s(i)-s').^1.5) + (V*P(:,j)).*delta;
             VVpartial=VV(1:i,:);
             [VI(i,j),sindex]=max(VVpartial);
             spol(i,j)=s(sindex);
@@ -66,16 +66,18 @@ k0=11; % initial state index for price
 T=20; 
 simpath=zeros(sim,T);
 for s=1:sim
-        s
-        ppathind=simmar(T,k0,p,P)
+        ppathind=simmar(T,k0,p,P);
         simpath(s,1)=spol(s0,k0);
         for t=2:T
             simpath(s,t)=spol(simpath(s,t-1),ppathind(t));
         end
 end
 expspath=mean(simpath,1);
+lower=quantile(simpath,0.05);
+upper = quantile(simpath, 0.95);
 Tseq=1:20;
-plot(Tseq, expspath)
+plot(Tseq, expspath,Tseq, lower,Tseq, upper)
+
             
         
 
