@@ -1,7 +1,7 @@
 %% HW6 
 %% Question 2
 clear
-J=21;
+J=5;
 I=100;
 iter =1000;
 [p,P,d]=tauchen(J,1,0.5,0.1,3);
@@ -40,10 +40,10 @@ for k=1:iter
 end
 
 % plot the value of the firm depending the initial stocks.
-plot(s,V(:,8),'DisplayName','p=0.9')
+plot(s,V(:,3),'DisplayName','p=0.82')
 hold on
-plot(s,V(:,11),'DisplayName','p=1')
-plot(s,V(:,14),'DisplayName','p=1.1')
+plot(s,V(:,4),'DisplayName','p=1')
+plot(s,V(:,5),'DisplayName','p=1.17')
 hold off
 lgd = legend;
 lgd.NumColumns = 2;
@@ -56,28 +56,3 @@ plot(p,spol(75,:),'DisplayName','s=75')
 hold off
 lgd = legend;
 lgd.NumColumns = 2;       
-
-%% simulate the paths and calculate the expected values and confidence intervals
-sim=1000;
-% intial state
-s0=100;
-p0=1;
-k0=11; % initial state index for price
-T=20; 
-simpath=zeros(sim,T);
-for s=1:sim
-        s
-        ppathind=simmar(T,k0,p,P)
-        simpath(s,1)=spol(s0,k0);
-        for t=2:T
-            simpath(s,t)=spol(simpath(s,t-1),ppathind(t));
-        end
-end
-expspath=mean(simpath,1);
-Tseq=1:20;
-plot(Tseq, expspath)
-            
-        
-
-
-        

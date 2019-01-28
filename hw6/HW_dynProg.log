@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.4.16)  21 JAN 2019 18:01
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.4.16)  28 JAN 2019 14:44
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -285,16 +285,37 @@ Underfull \hbox (badness 10000) in paragraph at lines 56--57
 
  []
 
-[3 <./spolp.jpg>] (./HW_dynProg.aux) )
+<spath.jpg, id=22, 1124.2pt x 843.15pt>
+File: spath.jpg Graphic file (type jpg)
+<use spath.jpg>
+Package pdftex.def Info: spath.jpg  used on input line 59.
+(pdftex.def)             Requested size: 224.83601pt x 168.627pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 61--62
+
+ []
+
+<Vs0_5.jpg, id=23, 1124.2pt x 843.15pt>
+File: Vs0_5.jpg Graphic file (type jpg)
+<use Vs0_5.jpg>
+Package pdftex.def Info: Vs0_5.jpg  used on input line 64.
+(pdftex.def)             Requested size: 224.83601pt x 168.627pt.
+<sp_5.jpg, id=24, 1124.2pt x 843.15pt>
+File: sp_5.jpg Graphic file (type jpg)
+<use sp_5.jpg>
+Package pdftex.def Info: sp_5.jpg  used on input line 66.
+(pdftex.def)             Requested size: 224.83601pt x 168.627pt.
+[3 <./spolp.jpg> <./spath.jpg>] [4 <./Vs0_5.jpg> <./sp_5.jpg>]
+(./HW_dynProg.aux) )
 (\end occurred inside a group at level 1)
 
 ### semi simple group (level 1) entered at line 14 (\begingroup)
 ### bottom level 
 Here is how much of TeX's memory you used:
- 2954 strings out of 492649
- 39196 string characters out of 6129622
+ 2969 strings out of 492649
+ 39383 string characters out of 6129622
  106058 words of memory out of 5000000
- 6781 multiletter control sequences out of 15000+600000
+ 6793 multiletter control sequences out of 15000+600000
  10300 words of font info for 40 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  41i,8n,27p,415b,225s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -310,10 +331,10 @@ fb></usr/local/texlive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb
 /usr/local/texlive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></
 usr/local/texlive/2018/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pf
 b>
-Output written on HW_dynProg.pdf (3 pages, 177273 bytes).
+Output written on HW_dynProg.pdf (4 pages, 292015 bytes).
 PDF statistics:
- 60 PDF objects out of 1000 (max. 8388607)
- 41 compressed objects within 1 object stream
+ 66 PDF objects out of 1000 (max. 8388607)
+ 43 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 11 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 26 words of extra memory for PDF output out of 10000 (max. 10000000)
 

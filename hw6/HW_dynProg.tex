@@ -55,9 +55,16 @@ The relationship between next period optimal stock and the price when holding am
 
 \item Assume firm starts with stock of 100 and today's price is 1. Plot expected stock over time for 20 periods ahead. Include the 90 percent confidence interval. \\[2em]
 
+According to my computation, the next period optimal stock  is 1 when today's stock is 100 and price is 1. Since I choose the states of stock to be 1, 2 ... and 100. The stock would stay 1 forever. In this case, the evolution of stocks is always staying 1. \\
+ \includegraphics[scale=0.2]{spath.jpg}
 
+\item Redo the 2-4 for coarse grid of 5 points in Tauchen's representation.\\[2em]
 
-\item Redo the 2-4 for coarse grid of 5 points in Tauchen's representation.
+I solved the dynamic programming problem using the value function iteration. The relationship between firm value and initial stock when holding current price of lumber fixed is plotted as followed: \\
+    \includegraphics[scale=0.2]{Vs0_5.jpg} \\
+The relationship between next period optimal stock and the price when holding amount of lumber left in stock as 25, 50 or 75 are plotted as:\\
+    \includegraphics[scale=0.2]{sp_5.jpg}
+
 \item Submit your code together with a pdf of your responses in \LaTeX. (Yes, part of this assignment is to get you to embed figures into \LaTeX.)
 \end{enumerate}
 

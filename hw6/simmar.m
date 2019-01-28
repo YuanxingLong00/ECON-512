@@ -1,4 +1,4 @@
-function path = simmar(T,k0,p,P)
+function pathind = simmar(T,k0,p,P)
 % N    the length of simulated markov process
 % k0   initial state (index)
 % p    the list of states
@@ -17,7 +17,7 @@ for t=2:T
         zz(t)=k+1;
     end
 end
-path=p(zz);
+pathind =zz;
 
 
 
