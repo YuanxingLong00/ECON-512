@@ -1,0 +1,13 @@
+function [W0,W1,W2]= GetW(V)
+global L delta; 
+W0=zeros(L,L);
+W1=zeros(L,L);
+for i=1:L
+    for j=1:L
+        deltai=(1-delta)^i;
+        deltaj=(1-delta)^j;
+        W0(i,j)=V(i,j)*(1-deltai)*(1-deltaj)+V(max(i,1),j)*deltai*(1-deltaj)+V(i,max(j-1,1))*(1-deltai)*deltaj+V(max(i-1,1),max(j-1,1))*deltai*deltaj;
+        W1(i,j)=V(min(i+1,L),j)*(1-deltai)*(1-deltaj) +V(i,j)*deltai*(1-deltaj)+ V(min(i+1,L),max(j-1,1))*(1-deltai)*deltaj+ V(i,max(j-1,1))*deltai*deltaj;
+    end
+end
+W2=W1';
