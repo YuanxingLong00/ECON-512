@@ -1,4 +1,5 @@
 %% HW6 
+% looks good, check plus
 %% Question 2
 clear
 J=21;
