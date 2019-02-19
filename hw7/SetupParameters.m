@@ -10,7 +10,7 @@ delta=0.03;
 beta=1/1.05;
 v=10;
 lambda=1;
-CRIT=1e-10; 
+CRIT=1e-5; 
 
 c=zeros(L,1);
 c(1:l)=kapa.*([1:l]'.^(log(luo)/ log(2)) );

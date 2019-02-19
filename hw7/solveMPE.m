@@ -5,7 +5,7 @@ V=V0;
 p=p0;
 iter=0;
 
-for i=1:1000
+for i=1:1500
     [W0,W1,W2]=GetW(V);
     np=GetP(W0,W1,W2,p); 
     nV=GetV(p,np,W0,W1,W2);

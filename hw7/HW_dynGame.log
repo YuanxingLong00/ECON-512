@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.4.16)  18 FEB 2019 19:35
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.4.16)  19 FEB 2019 00:24
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -271,34 +271,81 @@ OMS/cmsy/m/n/10.95 ^^@ \OML/cmm/m/it/10.95 c\OT1/cmr/m/n/10.95 (\OML/cmm/m/it/1
  []
 
 [3]
-Underfull \hbox (badness 10000) in paragraph at lines 214--215
-
- []
-
 <Pol.jpg, id=26, 1124.2pt x 843.15pt>
 File: Pol.jpg Graphic file (type jpg)
 <use Pol.jpg>
-Package pdftex.def Info: Pol.jpg  used on input line 216.
-(pdftex.def)             Requested size: 224.83601pt x 168.627pt.
-[4]
-<val.jpg, id=30, 1124.2pt x 843.15pt>
+Package pdftex.def Info: Pol.jpg  used on input line 217.
+(pdftex.def)             Requested size: 562.09863pt x 421.57396pt.
+
+Overfull \hbox (128.47864pt too wide) in paragraph at lines 217--218
+ [][] 
+ []
+
+<val.jpg, id=27, 1124.2pt x 843.15pt>
 File: val.jpg Graphic file (type jpg)
 <use val.jpg>
-Package pdftex.def Info: val.jpg  used on input line 218.
-(pdftex.def)             Requested size: 224.83601pt x 168.627pt.
- [5 <./Pol.jpg> <./val.jpg>] (./HW_dynGame.aux) )
+Package pdftex.def Info: val.jpg  used on input line 223.
+(pdftex.def)             Requested size: 449.67204pt x 337.25401pt.
+
+Overfull \hbox (16.05205pt too wide) in paragraph at lines 223--224
+ [][] 
+ []
+
+<fig3.jpg, id=28, 1124.2pt x 843.15pt>
+File: fig3.jpg Graphic file (type jpg)
+<use fig3.jpg>
+Package pdftex.def Info: fig3.jpg  used on input line 230.
+(pdftex.def)             Requested size: 449.67204pt x 337.25401pt.
+
+Overfull \hbox (16.05205pt too wide) in paragraph at lines 230--231
+ [][] 
+ []
+
+<fig4.jpg, id=29, 1124.2pt x 843.15pt>
+File: fig4.jpg Graphic file (type jpg)
+<use fig4.jpg>
+Package pdftex.def Info: fig4.jpg  used on input line 234.
+(pdftex.def)             Requested size: 449.67204pt x 337.25401pt.
+
+Overfull \hbox (16.05205pt too wide) in paragraph at lines 234--235
+ [][] 
+ []
+
+<fig5.jpg, id=30, 1124.2pt x 843.15pt>
+File: fig5.jpg Graphic file (type jpg)
+<use fig5.jpg>
+Package pdftex.def Info: fig5.jpg  used on input line 238.
+(pdftex.def)             Requested size: 449.67204pt x 337.25401pt.
+
+Overfull \hbox (16.05205pt too wide) in paragraph at lines 238--239
+ [][] 
+ []
+
+[4] [5 <./Pol.jpg>] [6 <./val.jpg>]
+<fig6.jpg, id=40, 1124.2pt x 843.15pt>
+File: fig6.jpg Graphic file (type jpg)
+<use fig6.jpg>
+Package pdftex.def Info: fig6.jpg  used on input line 244.
+(pdftex.def)             Requested size: 449.67204pt x 337.25401pt.
+
+Overfull \hbox (16.05205pt too wide) in paragraph at lines 244--245
+ [][] 
+ []
+
+[7 <./fig3.jpg>] [8 <./fig4.jpg>] [9 <./fig5.jpg>] [10 <./fig6.jpg>]
+(./HW_dynGame.aux) )
 (\end occurred inside a group at level 1)
 
 ### semi simple group (level 1) entered at line 16 (\begingroup)
 ### bottom level 
 Here is how much of TeX's memory you used:
- 2961 strings out of 492649
- 39263 string characters out of 6129622
+ 2982 strings out of 492649
+ 39514 string characters out of 6129622
  109073 words of memory out of 5000000
- 6785 multiletter control sequences out of 15000+600000
+ 6802 multiletter control sequences out of 15000+600000
  11666 words of font info for 44 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 41i,8n,27p,277b,249s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 41i,8n,27p,277b,358s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/local/texlive/2018/texmf-dist/fonts/type1/public/amsfonts
 /cm/cmbx10.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/public/amsfonts/
 cm/cmbx12.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/public/amsfonts/c
@@ -313,10 +360,10 @@ b></usr/local/texlive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb><
 r/local/texlive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr
 /local/texlive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/l
 ocal/texlive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb>
-Output written on HW_dynGame.pdf (5 pages, 334355 bytes).
+Output written on HW_dynGame.pdf (10 pages, 715467 bytes).
 PDF statistics:
- 78 PDF objects out of 1000 (max. 8388607)
- 54 compressed objects within 1 object stream
+ 99 PDF objects out of 1000 (max. 8388607)
+ 66 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 11 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 31 words of extra memory for PDF output out of 10000 (max. 10000000)
 
