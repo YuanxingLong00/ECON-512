@@ -9,11 +9,14 @@ for i=1:1000
     [W0,W1,W2]=GetW(V);
     np=GetP(W0,W1,W2,p); 
     nV=GetV(p,np,W0,W1,W2);
-    check = max( max(max(abs((nV-V)./(1+nV)))),  max(max(abs((np-p)./(1+np)))));       
-    V = lambda * nV + (1-lambda)*V;
-    p = lambda * np + (1-lambda)*p;
-    if check<CRIT
-         break;
-    end
+    check = max( max(max(abs((nV-V)./(1+nV)))),  max(max(abs((np-p)./(1+nV))))     )
+    V = lambda.* nV + (1-lambda).*V;
+    p = lambda.* np + (1-lambda).*p;
+   if check<CRIT
+       fprintf('Convergence Achieved');
+        break;
+   end
     iter=i
 end
+
+ end
