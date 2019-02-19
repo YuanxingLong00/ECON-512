@@ -1,5 +1,6 @@
 function [V,p,iter] = solveMPE(V0, p0)
 global L luo kapa l c v delta beta lambda CRIT; 
+% using global variables in matlab is slowing it down a lot. 
 
 V=V0;
 p=p0;

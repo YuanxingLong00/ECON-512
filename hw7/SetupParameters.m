@@ -11,6 +11,8 @@ beta=1/1.05;
 v=10;
 lambda=1;
 CRIT=1e-5; 
+% this tolerance is pretty tight, takes long time to converge. for this you
+% might need to optimize speed, not using global variables. 
 
 c=zeros(L,1);
 c(1:l)=kapa.*([1:l]'.^(log(luo)/ log(2)) );
