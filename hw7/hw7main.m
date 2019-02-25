@@ -1,17 +1,16 @@
 clear;
 tic;
-SetupParameters;
+SetupParameters; 
 % This question is different from the lecture notes. There is no
 % competition on quantities. 
+L=30;
 
 V0= 20.*ones(L,L);
 p0= 10.*ones(L,L);
 [Va, pa, itea] =solveMPE(V0,p0);
 
-
-
 elapsed = toc./60;
-disp(sprintf('Elapsed time: %12.4f minutes', elapsed));
+fprintf('Elapsed time: %12.4f minutes', elapsed);
 
 figure(1);
 mesh(Va);
@@ -58,3 +57,8 @@ end
 figure(6);
 mesh(plot4);
 title('Stationary Sate Distribution');
+
+%% The distribution looks weired. 
+%% Then best way is to calculate the transition probability matrix and then 
+%% matrix multiplication to calculate the future distribution. 
+%% The stationary distribution is just the solution to y=Py where P is transition matrix. 

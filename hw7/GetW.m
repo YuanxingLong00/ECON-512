@@ -1,5 +1,7 @@
 function [W0,W1,W2]= GetW(V)
-global L delta; 
+L=30;
+delta=0.03;
+
 W0=zeros(L,L);
 W1=zeros(L,L);
 W2=zeros(L,L);

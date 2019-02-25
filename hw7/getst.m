@@ -12,7 +12,7 @@ t=rand(1);
 if t<D1v
     q1=1;
     q2=0;
-else if t>1-D2v
+else if D1v<=t && t<(D1v+D2v)
         q1=0;
         q2=1;
     else q1=0;
