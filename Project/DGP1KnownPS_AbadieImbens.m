@@ -6,7 +6,7 @@ rng(135)
 N=100;
 rej=0;
 alpha=0.05;
-Crit= norminv(1-alpha);
+Crit= norminv(1-alpha/2);
 for j=1:1000
 X1= rand(N,1)-0.5*ones(N,1);
 X2= rand(N,1)-0.5*ones(N,1);
@@ -17,6 +17,7 @@ Y0= 3*X1-3*X2+U0;
 Y1= 5+5*X1+X2+U1;
 pX= (exp(X1+2*X2))./(ones(N,1)+exp(X1+2*X2));
 W= binornd(1,pX);
+W0=ones(N,1)-W;
 Y= W.*Y1+(ones(N,1)-W).*Y0;
 
 %% first, construct estimate for ATE tau based on known propensity score
@@ -24,13 +25,13 @@ Ybar=zeros(N,1); % i's matcher's average outcome based on known propensity score
 M=1; % Use M=1 now. Will use other M later.
 for i=1:N
     if W(i)==1
-        DPS= abs( pX(i)*(ones(N,1)-W)-pX.*(ones(N,1)-W) );
-        DPS(DPS==0)=2;
+        DPS= abs( pX(i)*W0-pX.*W0 );
+        DPS(W0==0)=2;
         [mi,ind]=min(DPS); 
         Ybar(i)=Y(ind);
     else 
         DPS= abs(pX(i)*W-pX.*W);
-        DPS(DPS==0)=2;
+        DPS(W==0)=2;
         [mi,ind]=min(DPS);
         Ybar(i)=Y(ind);
     end
@@ -54,9 +55,11 @@ for i=1:N
 end
 sigmasq= s/N;
 
-Z=sqrt(N)*(tauhat-5)/sqrt(sigmasq);
+Z=sqrt(N)*abs(tauhat-5)/sqrt(sigmasq);
 if Z> Crit
     rej=rej+1;
 end
 end
 RejProb=rej/1000;
+
+%% The rejection probability is 4.60%

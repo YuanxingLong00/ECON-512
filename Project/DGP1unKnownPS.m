@@ -3,8 +3,13 @@
 % First, Simulation with DGP taken from Abadie and Imbens (2016).
 % DGP 1
 clear;
-rng(135)
+rng(115)
 N=100;
+Rej=0;
+alpha=0.05;
+Crit= norminv(1-alpha/2);
+
+for k=1:1000
 X1= rand(N,1)-0.5*ones(N,1);
 X2= rand(N,1)-0.5*ones(N,1);
 X=[X1 X2];
@@ -63,8 +68,9 @@ end
 tautilde= sum( (2*W-ones(N,1)).*(Y-Ybar1) )/N; % tautilde based on estimated propensity score 
 
 %%%% Estimate asymptotic variance of tauhat when propensity score is known but based on estimated prop score 
-K= @(u) ( (3*(ones(N,1)-u.^2)/4).*indicator(u) ); % The kernel to be used 
+K= @(u) ( 0.75*(ones(N,1)-u.^2).*indicator(u) ); % The kernel to be used 
 h= 1/sqrt(N); % bandwidth 
+
 mu1= @(p) ( sum( (Y.*W).*K((pXhat-p*ones(N,1))/h) ) / sum( W.*K((pXhat-p*ones(N,1))/h) ) ); % mu(1,p)
 mu0= @(p) ( sum( (Y.*(ones(N,1)-W)).*K((pXhat-p*ones(N,1))/h) ) / sum( (ones(N,1)-W).*K((pXhat-p*ones(N,1))/h) ) ); % mu(0,p)
 Y2=Y.^2; 
@@ -82,41 +88,29 @@ sigmasq= s/N;
 
 %%%% estimate the reduction c'Ic in variance when using estimated propensity
 %%%% score
-f= @(y) ( exp(y)/(1+exp(y))^2);
 
-%%% calculate c
-mu1x= @(x) ( sum(  Y.*W.*K((X1-x(1)*ones(N,1))/h).*K( (X2-x(2)*ones(N,1))/h )  )...
-           / sum( W.*K((X1-x(1)*ones(N,1))/h).*K((X2-x(2)*ones(N,1))/h) ) );  %% this function generates NaN for some observations!!
-mu0x= @(x) ( sum(  Y.*(ones(N,1)-W).*K((X1-x(1)*ones(N,1))/h).*K( (X2-x(2)*ones(N,1))/h)  )...
-          /sum( (ones(N,1)-W).*K((X1-x(1)*ones(N,1))/h).*K((X2-x(2)*ones(N,1))/h) ) ); 
-mu1xvec= zeros(N,1); % mu(1,X) as a vector
-mu0xvec= zeros(N,1); % mu(0,X) as a vector 
-for i=1:N
-    mu1xvec(i)= mu1x(X(i,:));
-    mu0xvec(i)= mu0x(X(i,:));
-end
-
-% calculate cov[X,mu(1,X)|F(X'thetatilde)] and cov[X,mu(0,X)|F(X'thetatilde)]
-mu1xmat=repmat(mu1xvec,1,2);
-mu0xmat=repmat(mu0xvec,1,2);
-Xmu1= X.*mu1xmat;
-Xmu0= X.*mu0xmat;
-
-% cov[X,mu(1,X)|p] and cov[X,mu(0,X)|p]
-EX= @(p) (sum( X.*repmat(K((pXhat-p*ones(N,1))/h),1,2), 1 ) / sum(K((pXhat-p*ones(N,1))/h) ) ); %% E(X|p(X)=p)
-EXmu1= @(p) (sum( Xmu1.*repmat(K((pXhat-p*ones(N,1))/h),1,2), 1 ) / sum(K((pXhat-p*ones(N,1))/h) ) ); % there is a problem
-EXmu0= @(p) (sum( Xmu0.*repmat(K((pXhat-p*ones(N,1))/h),1,2), 1 ) / sum(K((pXhat-p*ones(N,1))/h) ) ); % there is a problem
-Emu1x= @(p) (sum( mu1xmat.*repmat(K((pXhat-p*ones(N,1))/h),1,2), 1 ) / sum(K((pXhat-p*ones(N,1))/h) ) );
-Emu0x= @(p) (sum( mu0xmat.*repmat(K((pXhat-p*ones(N,1))/h),1,2), 1 ) / sum(K((pXhat-p*ones(N,1))/h) ) );
-CovX1= @(p) ( EXmu1(p)-EX(p).*Emu1x(p) );
-CovX0= @(p) ( EXmu0(p)-EX(p).*Emu0x(p) );
-
-% Calculate c
-s1=[0,0];
+% Calculate I
+s2= zeros(2,2);
 for i=1:N
     Xthe= X(i,:)*thetahat;
-    s1=s1+ ( CovX1(pXhat(i))/pXhat(i) + CovX0(pXhat(i))/(1-pXhat(i)) ).*f(Xthe);
+    s2=s2+ (f(Xthe)^2 /(pXhat(i)*(1-pXhat(i))))* (X(i,:)'*X(i,:));
 end
-c= s1/N;
+I= s2/N;
+vartau=sigmasq-c*(I\c'); % estimated variance based on estimated propensity score. 
+
+asystat=sqrt(N)*abs(tautilde-5)/sqrt(vartau); % test statistic for two-sided test, alpha=5%
+if asystat>Crit
+    Rej=Rej+1;
+end
+end
+
+RejProb=Rej/1000;
+
+
+%% The simulated rejection probability is 0.02 which is too small.
+% Choice of bandwidth matters a lot in this situation.
+% need to check!
+% The key problem is that kernel estimation does not work in this case, why
+% ? Therefore, I go back to series estimation by assuming that E(Y|X)=m(X).
 
 
