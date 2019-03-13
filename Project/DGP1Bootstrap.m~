@@ -1,45 +1,93 @@
 %%%% This code want to implement the Bootstrap Inference Method.
-%%%% DGP4
+%%%% DGP1
 %%%% H0: tau<=5 vs H1: tau>5
 clear;
-rng(135);
-N=100;
+rng(200);
+N=500;
+N
 alpha=0.05;
 M=1;
-Rep=100;
+Rep=1000;
 Rej=zeros(Rep,1);
 RepM=1;
 B=400;
+qN=5;
+
+tic
+
  for R=1:Rep
 % Generate Data
-X=normrnd(0,1,N,4);
-X1=X(:,1);
-X2=X(:,2);
-X3=X(:,3);
-X4=X(:,4);
+Blocksize=zeros(qN,2);
+while ~all(Blocksize(:)~=0) % Eliminate unbalanced sample 
+    
+X1= rand(N,1)-0.5*ones(N,1);
+X2= rand(N,1)-0.5*ones(N,1);
+X=[X1 X2];
 U0= normrnd(0,1,N,1);
 U1= normrnd(0,1,N,1);
-Y0= U0;
-Y1= 210+27.4*X(:,1)+13.7*X(:,2)+13.7*X(:,3)+13.7*X(:,4) +U1;
-tau=210;
-theta=[-1;0.5;-0.25;-0.1];
-pX= (exp(X*theta))./(ones(N,1)+exp(X*theta) );
+Y0= 3*X1-3*X2+U0;
+Y1= 5*ones(N,1)+5*X1+X2+U1;
+tau=5;
+pX= (exp(X1+2*X2))./(ones(N,1)+exp(X1+2*X2));
 W= binornd(1,pX);
 W0= ones(N,1)-W;
 Y= W.*Y1+W0.*Y0;
 
 
 % Estimate theta
-F= @(theta) (exp(theta(1)*X1+theta(2)*X2+theta(3)*X3+theta(4)*X4)./...
-    (ones(N,1)+exp(theta(1)*X1+theta(2)*X2+theta(3)*X3+theta(4)*X4)));
+F= @(theta) (exp(theta(1)*X1+theta(2)*X2)./(ones(N,1)+exp(theta(1)*X1+theta(2)*X2)));
 L= @(theta) (-sum(W.*log(F(theta))+(ones(N,1)-W).*log(ones(N,1)-F(theta))));
 % fF= @(theta)((ones(N,1)-(exp(theta(1)*X1+theta(2)*X2)))./(ones(N,1)+exp(theta(1)*X1+theta(2)*X2)) );
 % matrix= @(theta)( W.*fF(theta)-W0.*fF(theta).*exp(theta(1)*X1+theta(2)*X2) );
 % FOC = @(theta)(- sum( (X.* repmat(matrix(theta),1,2)), 1)  );
-theta0=[-1;0.5;-0.25;-0.1];
+theta0=[0.9;1.9];
 % options = optimset('Display','off');
 thetahat= fminsearch(L,theta0);
 pXhat=F(thetahat); % Estimated Propensity Score
+
+% This part is to eliminate unbalanced original sample. 
+qN=5;
+len=floor(N/qN);
+[fvalue,xvalue]=ecdf(pXhat);
+xval=xvalue(2:(N+1));
+PSranking=fvalue(2:(N+1));
+Index= zeros(N,1);
+for i=1:N
+    Index(i)= find(pXhat==xval(i));
+end
+Wr= W(Index);
+block= zeros((qN+1),1);
+for i=1:qN
+    block(i+1)= find(PSranking<=(i/qN),1,'last');
+end
+
+
+for i=1:N
+    ipsrank= find(Index==i);
+    block(1)=0;
+    iblo= find(block>ipsrank,1,'first')-1;
+    if ipsrank==N
+        iblo=qN;
+    end
+    block(1)=1;
+    imatchl= block(iblo);
+    imatchu= block((iblo+1))-1;
+    blo_ps= Wr( imatchl: imatchu );
+    blo_ind= Index( imatchl: imatchu );
+    blo_ps0= 1-blo_ps;
+    if W(i)==0
+        Blocksize(iblo,1)=Blocksize(iblo,1)+1;
+    else 
+        Blocksize(iblo,2)=Blocksize(iblo,2)+1;
+    end
+end
+if ~all(Blocksize(:)~=0)
+    Blocksize=zeros(qN,2);
+    continue
+end
+  
+  break
+end
 
 %% first, construct estimate for ATE tau based on thetahat
 Ybar=zeros(N,1); % i's matcher's average outcome based on thetahat
@@ -86,33 +134,18 @@ Jw(:,2)= W.*[1:N]'+ W0.*JNN; % Jw for w=1
 % Obtain Mi which is the multinominal distribution realizations. It is
 % important to obatain it in this application.qN=N^(1/3). qN cannot be too
 % large.
-% This part is wrong again!
-qN=5;
-len=floor(N/qN);
-[fvalue,xvalue]=ecdf(pXhat);
-xval=xvalue(2:(N+1));
-PSranking=fvalue(2:(N+1));
-Index= zeros(N,1);
-for i=1:N
-    Index(i)= find(pXhat==xval(i));
-end
-Wr= W(Index);
-block= zeros((qN+1),1);
-for i=1:qN
-    block(i+1)= find(PSranking<=(i/qN),1,'last');
-end
 
-
-Cuvec=zeros(RepM,1);
-for RM=1:RepM
-
+        
 Swli= zeros(N, 3*len); % Each i's match from the other group
 Mi= zeros(N, 3*len);   % Standarized multinominal probabilities
-Matsiz=zeros(N,1);   % Number of i's match
+Matsiz=zeros(N,1); % Number of i's match   
 for i=1:N
     ipsrank= find(Index==i);
     block(1)=0;
-    iblo= find(block<ipsrank,1,'last');
+    iblo= find(block>ipsrank,1,'first')-1;
+    if ipsrank==N
+        iblo=qN;
+    end
     block(1)=1;
     imatchl= block(iblo);
     imatchu= block((iblo+1))-1;
@@ -138,6 +171,7 @@ for i=1:N
     end
 end
 
+
         
 
 
@@ -145,6 +179,10 @@ end
 Tdistr=zeros(B,1);
 for sim=1:B
 %-----------Step 1: Sample covariates Xs  ----------------------------%
+N1s= (M+1);
+N0s= (M+1);
+
+while N1s<= (M+1) || N0s<=(M+1) % Eliminate unbalanced bootstrap sample 
 S= unidrnd(N,N,1);
 Xs =zeros(N,2);
 for i=1:N
@@ -154,20 +192,23 @@ end
 %-----------Step 2: Draw new treatment values Ws----------------------%
 pXhats= exp(thetahat(1)*Xs(:,1)+thetahat(2)*Xs(:,2))./(ones(N,1)+exp(thetahat(1)*Xs(:,1)+thetahat(2)*Xs(:,2)));
 Ws= binornd(1,pXhats);
-
+W0s= ones(N,1)-Ws;
 %-----------Step 3: Discard unbalanced samples------------------------%
-% N1s= sum(Ws);
-% N0s= N- N1s;
-% if N1s > (M+1) && N0s > (M+1)
-% Estimate theta
-F= @(theta) (exp(theta(1)*Xs(:,1)+theta(2)*Xs(:,2)+theta(3)*Xs(:,3)+theta(4)*Xs(:,4))./(ones(N,1)+exp(theta(1)*Xs(:,1)+theta(2)*Xs(:,2)+theta(3)*Xs(:,1)+theta(2)*Xs(:,2))));
-L= @(theta) (-sum(W.*log(F(theta))+(ones(N,1)-W).*log(ones(N,1)-F(theta))));
+ N1s= sum(Ws);
+ N0s= N- N1s;
+ if  N1s<= (M+1) || N0s<=(M+1)
+     continue
+ end
+ break
+end
+
+
+% Estimate theta based bootstrap sample
+F= @(theta) (exp(theta(1)*Xs(:,1)+theta(2)*Xs(:,2))./(ones(N,1)+exp(theta(1)*Xs(:,1)+theta(2)*Xs(:,2))));
+L= @(theta) (-sum(Ws.*log(F(theta))+W0s.*log(ones(N,1)-F(theta))));
 theta0=[0.9;1.9];
 thetahats= fminsearch(L,theta0);
 % pXhats=F(thetahats); % Estimated Propensity Score
-% else 
-    % break ( to be added)
-% end
 
 %-----------Step 4: Calculate the multiple objects-------------------%
 % compute K_M(i,thetahats)
@@ -231,18 +272,49 @@ end
 tauhats= sum( (2*W-ones(N,1)).*(Y-Ybar./M) )/N; % tauhat based on thetahats
 
 
-% compute e_{2i}(w,thetahats) 
+% compute e_{2i}(w,thetahats) and compute e_1(i)
 % first compute e_{2i}(W_i, thetahats) and e_{2i}(thetahats)
 e2Wi=zeros(N,1);
 e1=zeros(N,1);
-K= @(u) ( 0.75*(ones(N,1)-u.^2).*indicator(u) ); % The kernel to be used 
-h= 1/sqrt(N); % bandwidth 
-for i=1:N
-        muwip0= sum(Y.*W0.*K( (pXhattemp- pXhattemp(i))/h) )/sum(W0.*K( (pXhattemp- pXhattemp(i))/h) ); 
-        muwip1= sum(Y.*W.*K( (pXhattemp- pXhattemp(i))/h) )/sum(W.*K( (pXhattemp- pXhattemp(i))/h) );
-        e2Wi(i)= Y(i)-( W0(i)*muwip0+W(i)*muwip1 ) ;
-        e1(i)= muwip1-muwip0-tauhats; %% use tauhats
-end 
+
+%% series estimation linear for muwip0 and muwip1
+treated=find(W);
+control=find(W0);
+sizet=size(treated);
+sizec=size(control);
+pXhattempt=[ones(sizet(1),1) pXhattemp(treated)];
+pXhattempc=[ones(sizec(1),1) pXhattemp(control)];
+pXexpand= [ones(N,1) pXhattemp];
+pXpXt= pXhattempt'*pXhattempt;
+pXpXc= pXhattempc'*pXhattempc;
+beta1= pXpXt\pXhattempt'*Y(treated);
+beta0= pXpXt\pXhattempc'*Y(control);
+muwip1= pXexpand* beta1;
+muwip0= pXexpand* beta0;
+
+%% series estimation 3 polinominals for muwip0 and muwip1
+treated=find(W);
+control=find(W0);
+sizet=size(treated);
+sizec=size(control);
+pXhattempt=[ones(sizet(1),1), pXhattemp(treated), pXhattemp(treated).^2,pXhattemp(treated).^3];
+pXhattempc=[ones(sizec(1),1), pXhattemp(control),pXhattemp(control).^2, pXhattemp(control).^3];
+pXexpand= [ones(N,1), pXhattemp, pXhattemp.^2, pXhattemp.^3];
+pXpXt= pXhattempt'*pXhattempt;
+pXpXc= pXhattempc'*pXhattempc;
+beta1= pXpXt\pXhattempt'*Y(treated);
+beta0= pXpXt\pXhattempc'*Y(control);
+muwip1= pXexpand* beta1;
+muwip0= pXexpand* beta0;
+
+%% Kernel estimation for muwip0 and muwip1
+% K= @(u) ( 0.75*(ones(N,1)-u.^2).*indicator(u) ); % The kernel to be used 
+%for i=1:N
+%        muwip0= sum(Y.*W0.*K( (pXhattemp- pXhattemp(i))/h) )/sum(W0.*K( (pXhattemp- pXhattemp(i))/h) ); 
+%        muwip1= sum(Y.*W.*K( (pXhattemp- pXhattemp(i))/h) )/sum(W.*K( (pXhattemp- pXhattemp(i))/h) );
+%        e2Wi(i)= Y(i)-( W0(i)*muwip0+W(i)*muwip1 ) ;
+%        e1(i)= muwip1-muwip0-tauhats; %% use tauhats
+% end 
 e2=zeros(N,2);
 e2(:,1)=e2Wi(Jw(:,1));
 e2(:,2)=e2Wi(Jw(:,2));
@@ -251,7 +323,7 @@ e2(:,2)=e2Wi(Jw(:,2));
 nu= (1+KMtil/M).*e2;
 
 % compute bootstrap realized error
-W0s= ones(N,1)-Ws;
+
 nu0= nu(:,1);
 nu1= nu(:,2); 
 bterror= e1(S)+Ws.*nu1(S)- W0s.* nu0(S);
@@ -265,20 +337,27 @@ center= e1+ pXhattemp.*nu1- CounterpX.* nu0;
 t = sum(bterror- center)/sqrt(N);
 Tdistr(sim)=t;
 end
-cu = invquantile(Tdistr, 1-alpha);
-Cuvec(RM)=cu;
-end
+Crit = invquantile(Tdistr, 1-alpha);
 
-Crit=sum(Cuvec)/RepM;
 teststat=sqrt(N)*(tauhat-tau);
  if teststat>Crit
      Rej(R)=1;
  else
     Rej(R)=0;
  end
- R
+ 
+ if R==300
+     R
+ else 
+     if R==650
+         R
+     end
  end
- RejProb= sum(Rej)/Rep;
+     
+ end
+ RejProb= sum(Rej)/Rep
+ toc 
+ time=toc
 
 % The key idea of this bootstrap method is to find the critical value for
 % tauhat and use the fact that statistic T has the same asymptotic
@@ -288,4 +367,14 @@ teststat=sqrt(N)*(tauhat-tau);
 
 % How to deal with unbalanced sample (W,X) and (W^*,X^*)? Drop it?
 
-% Rejction Probability is 
+% Rejction Probability when N=100 is 0.074
+
+% Rejction Probability when N=200 is 0.076
+% time = 3.4637e+03
+
+% Rejction Probability when N=500 is 
+
+
+
+% Rejction Probability when N=1000 is 
+

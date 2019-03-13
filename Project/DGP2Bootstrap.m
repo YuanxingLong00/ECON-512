@@ -4,14 +4,20 @@
 clear;
 rng(135);
 N=100;
+N
 alpha=0.05;
 M=1;
 Rep=100;
 Rej=zeros(Rep,1);
 RepM=1;
 B=400;
+qN=5;
+
+tic
  for R=1:Rep
 % Generate Data
+Blocksize=zeros(qN,2);
+while ~all(Blocksize(:)~=0)  % Eliminate unbalanced sample 
 X1= rand(N,1)-0.5*ones(N,1);
 X2= rand(N,1)-0.5*ones(N,1);
 X=[X1 X2];
@@ -36,6 +42,50 @@ theta0=[0.9;1.9];
 % options = optimset('Display','off');
 thetahat= fminsearch(L,theta0);
 pXhat=F(thetahat); % Estimated Propensity Score
+
+% This part is to eliminate unbalanced original sample. 
+qN=5;
+len=floor(N/qN);
+[fvalue,xvalue]=ecdf(pXhat);
+xval=xvalue(2:(N+1));
+PSranking=fvalue(2:(N+1));
+Index= zeros(N,1);
+for i=1:N
+    Index(i)= find(pXhat==xval(i));
+end
+Wr= W(Index);
+block= zeros((qN+1),1);
+for i=1:qN
+    block(i+1)= find(PSranking<=(i/qN),1,'last');
+end
+
+for i=1:N
+    ipsrank= find(Index==i);
+    block(1)=0;
+    iblo= find(block>ipsrank,1,'first')-1;
+    if ipsrank==N
+        iblo=qN;
+    end
+    block(1)=1;
+    imatchl= block(iblo);
+    imatchu= block((iblo+1))-1;
+    blo_ps= Wr( imatchl: imatchu );
+    blo_ind= Index( imatchl: imatchu );
+    blo_ps0= 1-blo_ps;
+    if W(i)==0
+        Blocksize(iblo,1)=Blocksize(iblo,1)+1;
+    else 
+        Blocksize(iblo,2)=Blocksize(iblo,2)+1;
+    end
+end
+if ~all(Blocksize(:)~=0)
+    Blocksize=zeros(qN,2);
+    continue
+end
+  
+  break
+end
+
 
 %% first, construct estimate for ATE tau based on thetahat
 Ybar=zeros(N,1); % i's matcher's average outcome based on thetahat
@@ -82,25 +132,7 @@ Jw(:,2)= W.*[1:N]'+ W0.*JNN; % Jw for w=1
 % Obtain Mi which is the multinominal distribution realizations. It is
 % important to obatain it in this application.qN=N^(1/3). qN cannot be too
 % large.
-% This part is wrong again!
-qN=5;
-len=floor(N/qN);
-[fvalue,xvalue]=ecdf(pXhat);
-xval=xvalue(2:(N+1));
-PSranking=fvalue(2:(N+1));
-Index= zeros(N,1);
-for i=1:N
-    Index(i)= find(pXhat==xval(i));
-end
-Wr= W(Index);
-block= zeros((qN+1),1);
-for i=1:qN
-    block(i+1)= find(PSranking<=(i/qN),1,'last');
-end
 
-
-Cuvec=zeros(RepM,1);
-for RM=1:RepM
 
 Swli= zeros(N, 3*len); % Each i's match from the other group
 Mi= zeros(N, 3*len);   % Standarized multinominal probabilities
@@ -141,6 +173,10 @@ end
 Tdistr=zeros(B,1);
 for sim=1:B
 %-----------Step 1: Sample covariates Xs  ----------------------------%
+N1s= (M+1);
+N0s= (M+1);
+
+while N1s<= (M+1) || N0s<=(M+1) % Eliminate unbalanced bootstrap sample 
 S= unidrnd(N,N,1);
 Xs =zeros(N,2);
 for i=1:N
@@ -153,9 +189,13 @@ Ws= binornd(1,pXhats);
 W0s= ones(N,1)-Ws;
 
 %-----------Step 3: Discard unbalanced samples------------------------%
-% N1s= sum(Ws);
-% N0s= N- N1s;
-% if N1s > (M+1) && N0s > (M+1)
+ N1s= sum(Ws);
+ N0s= N- N1s;
+ if  N1s<= (M+1) || N0s<=(M+1)
+     continue
+ end
+ break
+end
 % Estimate theta
 F= @(theta) (exp(theta(1)*Xs(:,1)+theta(2)*Xs(:,2))./(ones(N,1)+exp(theta(1)*Xs(:,1)+theta(2)*Xs(:,2))));
 L= @(theta) (-sum(Ws.*log(F(theta))+W0s.*log(ones(N,1)-F(theta))));
@@ -262,18 +302,26 @@ t = sum(bterror- center)/sqrt(N);
 Tdistr(sim)=t;
 end
 cu = invquantile(Tdistr, 1-alpha);
-Cuvec(RM)=cu;
-end
 
-Crit=sum(Cuvec)/RepM;
+Crit=cu;
 teststat=sqrt(N)*(tauhat-tau);
  if teststat>Crit
      Rej(R)=1;
  else
     Rej(R)=0;
  end
- R
+ 
+ if R==300
+     R
+ else 
+     if R==650
+         R
+     end
  end
+ 
+ end
+ toc
+ time=toc
  RejProb= sum(Rej)/Rep;
 
 % The key idea of this bootstrap method is to find the critical value for
@@ -284,4 +332,10 @@ teststat=sqrt(N)*(tauhat-tau);
 
 % How to deal with unbalanced sample (W,X) and (W^*,X^*)? Drop it?
 
-% Rejction Probability is 0.01
+% Rejction Probability when N=100 is 
+
+% Rejction Probability when N=200 is 
+
+% Rejction Probability when N=500 is 
+
+% Rejction Probability when N=1000 is 

@@ -2,16 +2,24 @@
 %%%% DGP1
 %%%% H0: tau<=5 vs H1: tau>5
 clear;
-rng(135);
+rng(200);
 N=100;
+N
 alpha=0.05;
 M=1;
-Rep=100;
+Rep=1000;
 Rej=zeros(Rep,1);
 RepM=1;
 B=400;
+qN=5;
+
+tic
+
  for R=1:Rep
 % Generate Data
+Blocksize=zeros(qN,2);
+while ~all(Blocksize(:)~=0) % Eliminate unbalanced sample 
+    
 X1= rand(N,1)-0.5*ones(N,1);
 X2= rand(N,1)-0.5*ones(N,1);
 X=[X1 X2];
@@ -36,6 +44,50 @@ theta0=[0.9;1.9];
 % options = optimset('Display','off');
 thetahat= fminsearch(L,theta0);
 pXhat=F(thetahat); % Estimated Propensity Score
+
+% This part is to eliminate unbalanced original sample. 
+qN=5;
+len=floor(N/qN);
+[fvalue,xvalue]=ecdf(pXhat);
+xval=xvalue(2:(N+1));
+PSranking=fvalue(2:(N+1));
+Index= zeros(N,1);
+for i=1:N
+    Index(i)= find(pXhat==xval(i));
+end
+Wr= W(Index);
+block= zeros((qN+1),1);
+for i=1:qN
+    block(i+1)= find(PSranking<=(i/qN),1,'last');
+end
+
+
+for i=1:N
+    ipsrank= find(Index==i);
+    block(1)=0;
+    iblo= find(block>ipsrank,1,'first')-1;
+    if ipsrank==N
+        iblo=qN;
+    end
+    block(1)=1;
+    imatchl= block(iblo);
+    imatchu= block((iblo+1))-1;
+    blo_ps= Wr( imatchl: imatchu );
+    blo_ind= Index( imatchl: imatchu );
+    blo_ps0= 1-blo_ps;
+    if W(i)==0
+        Blocksize(iblo,1)=Blocksize(iblo,1)+1;
+    else 
+        Blocksize(iblo,2)=Blocksize(iblo,2)+1;
+    end
+end
+if ~all(Blocksize(:)~=0)
+    Blocksize=zeros(qN,2);
+    continue
+end
+  
+  break
+end
 
 %% first, construct estimate for ATE tau based on thetahat
 Ybar=zeros(N,1); % i's matcher's average outcome based on thetahat
@@ -82,33 +134,18 @@ Jw(:,2)= W.*[1:N]'+ W0.*JNN; % Jw for w=1
 % Obtain Mi which is the multinominal distribution realizations. It is
 % important to obatain it in this application.qN=N^(1/3). qN cannot be too
 % large.
-% This part is wrong again!
-qN=5;
-len=floor(N/qN);
-[fvalue,xvalue]=ecdf(pXhat);
-xval=xvalue(2:(N+1));
-PSranking=fvalue(2:(N+1));
-Index= zeros(N,1);
-for i=1:N
-    Index(i)= find(pXhat==xval(i));
-end
-Wr= W(Index);
-block= zeros((qN+1),1);
-for i=1:qN
-    block(i+1)= find(PSranking<=(i/qN),1,'last');
-end
 
-
-Cuvec=zeros(RepM,1);
-for RM=1:RepM
-
+        
 Swli= zeros(N, 3*len); % Each i's match from the other group
 Mi= zeros(N, 3*len);   % Standarized multinominal probabilities
-Matsiz=zeros(N,1);   % Number of i's match
+Matsiz=zeros(N,1); % Number of i's match   
 for i=1:N
     ipsrank= find(Index==i);
     block(1)=0;
-    iblo= find(block<ipsrank,1,'last');
+    iblo= find(block>ipsrank,1,'first')-1;
+    if ipsrank==N
+        iblo=qN;
+    end
     block(1)=1;
     imatchl= block(iblo);
     imatchu= block((iblo+1))-1;
@@ -134,6 +171,7 @@ for i=1:N
     end
 end
 
+
         
 
 
@@ -141,6 +179,10 @@ end
 Tdistr=zeros(B,1);
 for sim=1:B
 %-----------Step 1: Sample covariates Xs  ----------------------------%
+N1s= (M+1);
+N0s= (M+1);
+
+while N1s<= (M+1) || N0s<=(M+1) % Eliminate unbalanced bootstrap sample 
 S= unidrnd(N,N,1);
 Xs =zeros(N,2);
 for i=1:N
@@ -151,20 +193,22 @@ end
 pXhats= exp(thetahat(1)*Xs(:,1)+thetahat(2)*Xs(:,2))./(ones(N,1)+exp(thetahat(1)*Xs(:,1)+thetahat(2)*Xs(:,2)));
 Ws= binornd(1,pXhats);
 W0s= ones(N,1)-Ws;
-
 %-----------Step 3: Discard unbalanced samples------------------------%
-% N1s= sum(Ws);
-% N0s= N- N1s;
-% if N1s > (M+1) && N0s > (M+1)
-% Estimate theta
+ N1s= sum(Ws);
+ N0s= N- N1s;
+ if  N1s<= (M+1) || N0s<=(M+1)
+     continue
+ end
+ break
+end
+
+
+% Estimate theta based bootstrap sample
 F= @(theta) (exp(theta(1)*Xs(:,1)+theta(2)*Xs(:,2))./(ones(N,1)+exp(theta(1)*Xs(:,1)+theta(2)*Xs(:,2))));
 L= @(theta) (-sum(Ws.*log(F(theta))+W0s.*log(ones(N,1)-F(theta))));
 theta0=[0.9;1.9];
 thetahats= fminsearch(L,theta0);
 % pXhats=F(thetahats); % Estimated Propensity Score
-% else 
-    % break ( to be added)
-% end
 
 %-----------Step 4: Calculate the multiple objects-------------------%
 % compute K_M(i,thetahats)
@@ -228,18 +272,23 @@ end
 tauhats= sum( (2*W-ones(N,1)).*(Y-Ybar./M) )/N; % tauhat based on thetahats
 
 
-% compute e_{2i}(w,thetahats) 
+% compute e_{2i}(w,thetahats) and compute e_1(i)
 % first compute e_{2i}(W_i, thetahats) and e_{2i}(thetahats)
 e2Wi=zeros(N,1);
 e1=zeros(N,1);
-K= @(u) ( 0.75*(ones(N,1)-u.^2).*indicator(u) ); % The kernel to be used 
-h= 1/sqrt(N); % bandwidth 
-for i=1:N
-        muwip0= sum(Y.*W0.*K( (pXhattemp- pXhattemp(i))/h) )/sum(W0.*K( (pXhattemp- pXhattemp(i))/h) ); 
-        muwip1= sum(Y.*W.*K( (pXhattemp- pXhattemp(i))/h) )/sum(W.*K( (pXhattemp- pXhattemp(i))/h) );
-        e2Wi(i)= Y(i)-( W0(i)*muwip0+W(i)*muwip1 ) ;
-        e1(i)= muwip1-muwip0-tauhats; %% use tauhats
-end 
+
+%% series estimation linear for muwip0 and muwip1
+serieslinear;
+
+%% series estimation 3 polinominals for muwip0 and muwip1
+% series3polinominals;
+%% series estimation 4 polinominals for muwip0 and muwip1
+% series3polinominals;
+
+%% Kernel estimation for muwip0 and muwip1
+% serieskernel; 
+
+
 e2=zeros(N,2);
 e2(:,1)=e2Wi(Jw(:,1));
 e2(:,2)=e2Wi(Jw(:,2));
@@ -248,6 +297,7 @@ e2(:,2)=e2Wi(Jw(:,2));
 nu= (1+KMtil/M).*e2;
 
 % compute bootstrap realized error
+
 nu0= nu(:,1);
 nu1= nu(:,2); 
 bterror= e1(S)+Ws.*nu1(S)- W0s.* nu0(S);
@@ -261,20 +311,27 @@ center= e1+ pXhattemp.*nu1- CounterpX.* nu0;
 t = sum(bterror- center)/sqrt(N);
 Tdistr(sim)=t;
 end
-cu = invquantile(Tdistr, 1-alpha);
-Cuvec(RM)=cu;
-end
+Crit = invquantile(Tdistr, 1-alpha);
 
-Crit=sum(Cuvec)/RepM;
 teststat=sqrt(N)*(tauhat-tau);
  if teststat>Crit
      Rej(R)=1;
  else
     Rej(R)=0;
  end
- R
+ 
+ if R==300
+     R
+ else 
+     if R==650
+         R
+     end
  end
- RejProb= sum(Rej)/Rep;
+     
+ end
+ RejProb= sum(Rej)/Rep
+ toc 
+ time=toc
 
 % The key idea of this bootstrap method is to find the critical value for
 % tauhat and use the fact that statistic T has the same asymptotic
@@ -284,4 +341,14 @@ teststat=sqrt(N)*(tauhat-tau);
 
 % How to deal with unbalanced sample (W,X) and (W^*,X^*)? Drop it?
 
-% Rejction Probability is 0.0400
+% Rejction Probability when N=100 is 0.074
+
+% Rejction Probability when N=200 is 0.076
+% time = 3.4637e+03
+
+% Rejction Probability when N=500 is 
+
+
+
+% Rejction Probability when N=1000 is 
+
