@@ -9,6 +9,6 @@ pXexpand= [ones(N,1), pXhattemp, pXhattemp.^2, pXhattemp.^3];
 pXpXt= pXhattempt'*pXhattempt;
 pXpXc= pXhattempc'*pXhattempc;
 beta1= pXpXt\pXhattempt'*Y(treated);
-beta0= pXpXt\pXhattempc'*Y(control);
+beta0= pXpXc\pXhattempc'*Y(control);
 muwip1= pXexpand* beta1;
 muwip0= pXexpand* beta0;

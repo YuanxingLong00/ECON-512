@@ -290,6 +290,7 @@ serieslinear;
 
 
 e2=zeros(N,2);
+
 e2(:,1)=e2Wi(Jw(:,1));
 e2(:,2)=e2Wi(Jw(:,2));
 
@@ -316,22 +317,23 @@ Crit = invquantile(Tdistr, 1-alpha);
 teststat=sqrt(N)*(tauhat-tau);
  if teststat>Crit
      Rej(R)=1;
- else
-    Rej(R)=0;
  end
  
- if R==300
+ if R==250
      R
  else 
-     if R==650
+     if R==500
          R
+     else if R==750
+             R
+         end
      end
  end
      
  end
  RejProb= sum(Rej)/Rep
  toc 
- time=toc
+ time=toc/60
 
 % The key idea of this bootstrap method is to find the critical value for
 % tauhat and use the fact that statistic T has the same asymptotic
@@ -341,14 +343,25 @@ teststat=sqrt(N)*(tauhat-tau);
 
 % How to deal with unbalanced sample (W,X) and (W^*,X^*)? Drop it?
 
-% Rejction Probability when N=100 is 0.074
-
-% Rejction Probability when N=200 is 0.076
+% Rejction Probability when N=100 is 0.087 when using kernel qN=5
+% time = 30.3472
+% Rejction Probability when N=200 is 0.076 when using kernel 
 % time = 3.4637e+03
-
 % Rejction Probability when N=500 is 
-
-
-
 % Rejction Probability when N=1000 is 
 
+
+% Rejction Probability when N=100 is 0.5310 when using series linear qN=5
+% time = 20.88 mins
+% Rejction Probability when N=200 is  when using kernel linear qN=5
+% time = 
+% Rejction Probability when N=500 is 
+% Rejction Probability when N=1000 is 
+
+
+% Rejction Probability when N=100 is  when using series 3 polinominals qN=5
+% time = mins
+% Rejction Probability when N=200 is  when using kernel linear qN=5
+% time = 
+% Rejction Probability when N=500 is 
+% Rejction Probability when N=1000 is 

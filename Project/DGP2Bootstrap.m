@@ -7,7 +7,7 @@ N=100;
 N
 alpha=0.05;
 M=1;
-Rep=100;
+Rep=1000;
 Rej=zeros(Rep,1);
 RepM=1;
 B=400;
@@ -322,7 +322,7 @@ teststat=sqrt(N)*(tauhat-tau);
  end
  toc
  time=toc
- RejProb= sum(Rej)/Rep;
+ RejProb= sum(Rej)/Rep
 
 % The key idea of this bootstrap method is to find the critical value for
 % tauhat and use the fact that statistic T has the same asymptotic
