@@ -1,13 +1,10 @@
 %%%% This code want to implement the Bootstrap Inference Method.
 %%%% DGP1
 %%%% H0: tau<=5 vs H1: tau>5
-clear;
 rng(200);
-N=100;
-N
 alpha=0.05;
 M=1;
-Rep=100;
+Rep=1;
 Rej=0;
 RepM=1;
 B=400;
@@ -276,7 +273,7 @@ e2Wi=zeros(N,1);
 e1=zeros(N,1);
 
 %% series estimation linear for muwip0 and muwip1
-serieslinear;
+% serieslinear;
 
 %% series estimation 3 polinominals for muwip0 and muwip1
 % series3polinominals;
@@ -304,7 +301,7 @@ bterror= e1(S)+Ws.*nu1(S)- W0s.* nu0(S);
 
 % compute the center of bootstrap realized error 
 CounterpX= ones(N,1)- pXhattemp;
-center= e1+ pXhattemp.*nu1- CounterpX.* nu0;
+center= mean(e1+ pXhattemp.*nu1- CounterpX.* nu0);
 
 %-----------------Step 5: compute the test statistic--------------%
 t = sum(bterror- center)/sqrt(N);
@@ -316,23 +313,12 @@ teststat=sqrt(N)*(tauhat-tau);
  if teststat>Crit
      Rej=Rej+1;
  end
- 
- if R==250
-     R
- else 
-     if R==500
-         R
-     else if R==750
-             R
-         end
-     end
- end
      
  end
- RejProb= Rej/Rep
+ RejProb= Rej/Rep;
  toc 
- time=toc/60
-
+ time=toc/60;
+fprintf('DGP1 with N= %d, rejection probabity is %1.3f and time is %4.2f mins\n',N, RejProb, time);
 % The key idea of this bootstrap method is to find the critical value for
 % tauhat and use the fact that statistic T has the same asymptotic
 % distribution as sqrt(N)(tauhat-tau). In other words, the bootstrap
@@ -357,5 +343,6 @@ teststat=sqrt(N)*(tauhat-tau);
 % Rejction Probability when N=500 is 
 % Rejction Probability when N=1000 is 
 
-
-
+% if use kernel N=200, 1000 repetitions take 0.0798*500=40 mins
+% if use kernel N=500, 1000 repetitions take 0.1890*500=94 mins
+% if use kernel N=1000, 1000 repetitions take 0.3848*500=192 mins

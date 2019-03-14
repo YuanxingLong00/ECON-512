@@ -1,14 +1,11 @@
 %%%% This code want to implement the Bootstrap Inference Method.
 %%%% DGP4
 %%%% H0: tau<=5 vs H1: tau>5
-clear;
 rng(135);
-N=100;
-N
 alpha=0.05;
 M=1;
 Rep=1000;
-Rej=zeros(Rep,1);
+Rej=0;
 RepM=1;
 B=400;
 qN=5;
@@ -311,27 +308,16 @@ Crit = invquantile(Tdistr, 1-alpha);
 
 teststat=sqrt(N)*(tauhat-tau);
  if teststat>Crit
-     Rej(R)=1;
- else
-    Rej(R)=0;
+     Rej=Rej+1;
  end
   
- if R==250
-     R
- else 
-     if R==500
-         R
-     else if R==750
-             R
-         end
-     end
- end
- 
  end
  toc
- time=toc/60
- 
- RejProb= sum(Rej)/Rep
+ time=toc/60; 
+
+ RejProb= Rej/Rep; 
+ fprintf('DGP1 with N= %d, rejection probabity is %1.3f and time is %4.2f mins\n',N, RejProb, time);
+
 
 % The key idea of this bootstrap method is to find the critical value for
 % tauhat and use the fact that statistic T has the same asymptotic

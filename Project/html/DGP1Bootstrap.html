@@ -1,0 +1,778 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>DGP1Bootstrap</title><meta name="generator" content="MATLAB 9.4"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-03-14"><meta name="DC.source" content="DGP1Bootstrap.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#3">first, construct estimate for ATE tau based on thetahat</a></li><li><a href="#5">first, construct estimate for ATE tau based on thetahats</a></li><li><a href="#6">series estimation linear for muwip0 and muwip1</a></li><li><a href="#7">series estimation 3 polinominals for muwip0 and muwip1</a></li><li><a href="#8">series estimation 4 polinominals for muwip0 and muwip1</a></li><li><a href="#9">Kernel estimation for muwip0 and muwip1</a></li></ul></div><pre class="codeinput"><span class="comment">%%%% This code want to implement the Bootstrap Inference Method.</span>
+<span class="comment">%%%% DGP1</span>
+<span class="comment">%%%% H0: tau&lt;=5 vs H1: tau&gt;5</span>
+clear;
+rng(200);
+N=200;
+alpha=0.05;
+M=1;
+Rep=1;
+Rej=0;
+RepM=1;
+B=400;
+qN=5;
+
+tic
+
+ <span class="keyword">for</span> R=1:Rep
+</pre><pre class="codeinput"><span class="comment">% Generate Data</span>
+Blocksize=zeros(qN,2);
+<span class="keyword">while</span> ~all(Blocksize(:)~=0) <span class="comment">% Eliminate unbalanced sample</span>
+
+X1= rand(N,1)-0.5*ones(N,1);
+X2= rand(N,1)-0.5*ones(N,1);
+X=[X1 X2];
+U0= normrnd(0,1,N,1);
+U1= normrnd(0,1,N,1);
+Y0= 3*X1-3*X2+U0;
+Y1= 5*ones(N,1)+5*X1+X2+U1;
+tau=5;
+pX= (exp(X1+2*X2))./(ones(N,1)+exp(X1+2*X2));
+W= binornd(1,pX);
+W0= ones(N,1)-W;
+Y= W.*Y1+W0.*Y0;
+
+
+<span class="comment">% Estimate theta</span>
+F= @(theta) (exp(theta(1)*X1+theta(2)*X2)./(ones(N,1)+exp(theta(1)*X1+theta(2)*X2)));
+L= @(theta) (-sum(W.*log(F(theta))+(ones(N,1)-W).*log(ones(N,1)-F(theta))));
+<span class="comment">% fF= @(theta)((ones(N,1)-(exp(theta(1)*X1+theta(2)*X2)))./(ones(N,1)+exp(theta(1)*X1+theta(2)*X2)) );</span>
+<span class="comment">% matrix= @(theta)( W.*fF(theta)-W0.*fF(theta).*exp(theta(1)*X1+theta(2)*X2) );</span>
+<span class="comment">% FOC = @(theta)(- sum( (X.* repmat(matrix(theta),1,2)), 1)  );</span>
+theta0=[0.9;1.9];
+<span class="comment">% options = optimset('Display','off');</span>
+thetahat= fminsearch(L,theta0);
+pXhat=F(thetahat); <span class="comment">% Estimated Propensity Score</span>
+
+<span class="comment">% This part is to eliminate unbalanced original sample.</span>
+qN=5;
+len=floor(N/qN);
+[fvalue,xvalue]=ecdf(pXhat);
+xval=xvalue(2:(N+1));
+PSranking=fvalue(2:(N+1));
+Index= zeros(N,1);
+iblock=zeros(N,1);
+<span class="keyword">for</span> i=1:N
+    Index(i)= find(pXhat==xval(i));
+<span class="keyword">end</span>
+Wr= W(Index);
+block= zeros((qN+1),1);
+<span class="keyword">for</span> i=1:qN
+    block(i+1)= find(PSranking&lt;=(i/qN),1,<span class="string">'last'</span>);
+<span class="keyword">end</span>
+
+
+<span class="keyword">for</span> i=1:N
+    ipsrank= find(Index==i);
+    block(1)=0;
+   <span class="keyword">if</span> ipsrank &lt;N
+        iblock(i)= find(block&gt;ipsrank,1,<span class="string">'first'</span>)-1;
+    <span class="keyword">else</span>
+        iblock(i)=qN;
+   <span class="keyword">end</span>
+
+    <span class="keyword">if</span> W(i)==0
+        Blocksize(iblock(i),1)=Blocksize(iblock(i),1)+1;
+    <span class="keyword">else</span>
+        Blocksize(iblock(i),2)=Blocksize(iblock(i),2)+1;
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+<span class="keyword">if</span> ~all(Blocksize(:)~=0)
+    Blocksize=zeros(qN,2);
+    <span class="keyword">continue</span>
+<span class="keyword">end</span>
+
+  <span class="keyword">break</span>
+<span class="keyword">end</span>
+</pre><h2 id="3">first, construct estimate for ATE tau based on thetahat</h2><pre class="codeinput">Ybar=zeros(N,1); <span class="comment">% i's matcher's average outcome based on thetahat</span>
+<span class="keyword">for</span> i=1:N
+    <span class="keyword">if</span> W(i)==1
+        DPS= abs( pXhat(i)*W0-pXhat.*W0 );
+        DPS(W0==0)=3;
+        [mi,ind]=min(DPS);
+        Ybar(i)=Y(ind);
+    <span class="keyword">else</span>
+         DPS= abs(pXhat(i)*W-pXhat.*W);
+         DPS(W==0)=3;
+        [mi,ind]=min(DPS);
+        Ybar(i)=Y(ind);
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+tauhat= sum( (2*W-ones(N,1)).*(Y-Ybar) )/N; <span class="comment">% tauhat based on thetahat</span>
+<span class="comment">% This will be used in inference.</span>
+
+<span class="comment">% Implement Bootstrap Method</span>
+
+<span class="comment">%-----------Step 0: Obtain M(i) and Jw(i)----------------------------%</span>
+
+<span class="comment">% compute J_{w}(i)</span>
+JNN=zeros(N,1); <span class="comment">% compute J_{NN}(i)</span>
+ <span class="keyword">for</span> i=1:N
+    <span class="keyword">if</span> W(i)==0
+       Dist= sum(abs( (repmat(X(i,:),N,1)-X).*repmat(W,1,2) ),2);
+       Dist(W==0)=inf;
+       [~,match]=min(Dist);
+       JNN(i)=match;
+    <span class="keyword">else</span>
+       Dist= sum(abs( (repmat(X(i,:),N,1)-X).*repmat(W0,1,2) ),2);
+       Dist(W0==0)=inf;
+       [~,match]=min(Dist);
+       JNN(i)=match;
+    <span class="keyword">end</span>
+ <span class="keyword">end</span>
+Jw=zeros(N,2);
+Jw(:,1)= W0.*[1:N]'+ W.*JNN; <span class="comment">% Jw for w=0</span>
+Jw(:,2)= W.*[1:N]'+ W0.*JNN; <span class="comment">% Jw for w=1</span>
+
+
+<span class="comment">% Obtain Mi which is the multinominal distribution realizations. It is</span>
+<span class="comment">% important to obatain it in this application.qN=N^(1/3). qN cannot be too</span>
+<span class="comment">% large.</span>
+
+
+Swli= zeros(N, 3*len); <span class="comment">% Each i's match from the other group</span>
+Mi= zeros(N, 3*len);   <span class="comment">% Standarized multinominal probabilities</span>
+Matsiz=zeros(N,1); <span class="comment">% Number of i's match</span>
+block(1)=1;
+<span class="keyword">for</span> i=1:N
+    ipsrank= find(Index==i);
+    <span class="keyword">if</span> iblock(i) &lt; qN <span class="comment">% to be adjusted for other codes.</span>
+         imatchl= block(iblock(i));
+         imatchu= block((iblock(i)+1))-1;
+    <span class="keyword">else</span>
+        imatchl= block(iblock(i));
+        imatchu= block((iblock(i)+1));
+    <span class="keyword">end</span>
+
+    blo_ps= Wr( imatchl: imatchu );
+    blo_ind= Index( imatchl: imatchu );
+    blo_ps0= 1-blo_ps;
+    <span class="keyword">if</span> W(i)==0
+       siz= sum(blo_ps);
+       temp= (blo_ps.* blo_ind)';
+       Swli(i,1:siz)= temp(~(temp==0));
+       pmn= ones(1,siz)/siz;
+       temp=mnrnd(siz,pmn);
+       Mi(i,1:siz)= temp./siz;
+       Matsiz(i)=siz;
+    <span class="keyword">else</span>
+       siz= sum(blo_ps0);
+       temp= (blo_ps0.* blo_ind)';
+       Swli(i,1:siz)= temp(~(temp==0));
+       pmn=ones(1,siz)/siz;
+       temp=mnrnd(siz,pmn);
+       Mi(i,1:siz)= temp./siz;
+       Matsiz(i)=siz;
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+
+
+
+
+
+Tdistr=zeros(B,1);
+<span class="keyword">for</span> sim=1:B
+</pre><pre class="codeinput"><span class="comment">%-----------Step 1: Sample covariates Xs  ----------------------------%</span>
+N1s= (M+1);
+N0s= (M+1);
+
+<span class="keyword">while</span> N1s&lt;= (M+1) || N0s&lt;=(M+1) <span class="comment">% Eliminate unbalanced bootstrap sample</span>
+S= unidrnd(N,N,1);
+Xs =zeros(N,2);
+<span class="keyword">for</span> i=1:N
+    Xs(i,:) = X(S(i),:);
+<span class="keyword">end</span>
+
+<span class="comment">%-----------Step 2: Draw new treatment values Ws----------------------%</span>
+pXhats= exp(thetahat(1)*Xs(:,1)+thetahat(2)*Xs(:,2))./(ones(N,1)+exp(thetahat(1)*Xs(:,1)+thetahat(2)*Xs(:,2)));
+Ws= binornd(1,pXhats);
+W0s= ones(N,1)-Ws;
+<span class="comment">%-----------Step 3: Discard unbalanced samples------------------------%</span>
+ N1s= sum(Ws);
+ N0s= N- N1s;
+ <span class="keyword">if</span>  N1s&lt;= (M+1) || N0s&lt;=(M+1)
+     <span class="keyword">continue</span>
+ <span class="keyword">end</span>
+ <span class="keyword">break</span>
+<span class="keyword">end</span>
+
+
+<span class="comment">% Estimate theta based bootstrap sample</span>
+F= @(theta) (exp(theta(1)*Xs(:,1)+theta(2)*Xs(:,2))./(ones(N,1)+exp(theta(1)*Xs(:,1)+theta(2)*Xs(:,2))));
+L= @(theta) (-sum(Ws.*log(F(theta))+W0s.*log(ones(N,1)-F(theta))));
+theta0=[0.9;1.9];
+thetahats= fminsearch(L,theta0);
+<span class="comment">% pXhats=F(thetahats); % Estimated Propensity Score</span>
+
+<span class="comment">%-----------Step 4: Calculate the multiple objects-------------------%</span>
+<span class="comment">% compute K_M(i,thetahats)</span>
+pXhattemp= exp(thetahats(1)*X(:,1)+thetahats(2)*X(:,2))./(ones(N,1)+exp(thetahats(1)*X(:,1)+thetahats(2)*X(:,2)));
+Matchset=zeros(N,1); <span class="comment">% Match from opposite group for any i=1,...N</span>
+<span class="keyword">for</span> i=1:N
+    <span class="keyword">if</span> W(i)==1
+        DPS= abs( pXhattemp(i)*W0-pXhattemp.*W0 );
+        DPS(W0==0)=2;
+        [mi,ind]=min(DPS);
+        Matchset(i)=ind;
+    <span class="keyword">else</span>
+        DPS= abs(pXhattemp(i)*W-pXhattemp.*W);
+        DPS(W==0)=2;
+        [mi,ind]=min(DPS);
+        Matchset(i)=ind;
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+KM=zeros(N,1); <span class="comment">% It is K_M(i,thetahats)</span>
+<span class="keyword">for</span> i=1:N
+    KM(i)= sum(Matchset(:) == i);
+<span class="keyword">end</span>
+
+
+<span class="comment">% compute KMtilde where w \neq W_i  (Comment: this part is currently</span>
+<span class="comment">% wrong.)</span>
+KMtilde=zeros(N,1);
+<span class="keyword">for</span> i=1:N
+    imatchvec= Swli(i,:)';
+    imatch= imatchvec(~(imatchvec==0));
+    imatchsiz= size(imatch);
+    imatchprob= Mi(i,1:imatchsiz);
+    KMtilde(i)= KM(imatch)'* imatchprob';
+<span class="keyword">end</span>
+
+KMtil= zeros(N,2); <span class="comment">% it contains all the matching functions to be used.</span>
+KMtil(:,1)= W0.*KM+ W.*KMtilde; <span class="comment">% KMtil for w=0</span>
+KMtil(:,2)= W.*KM+ W0.*KMtilde; <span class="comment">% KMtil for w=1</span>
+
+
+
+
+
+
+<span class="comment">% compute tauhats</span>
+</pre><h2 id="5">first, construct estimate for ATE tau based on thetahats</h2><pre class="codeinput">Ybar=zeros(N,1); <span class="comment">% i's matcher's average outcome based on thetahats</span>
+<span class="keyword">for</span> i=1:N
+    <span class="keyword">if</span> W(i)==1
+        DPS= abs( pXhattemp(i)*W0-pXhattemp.*W0 );
+        DPS(W0==0)=3;
+        [mi,ind]=min(DPS);
+        Ybar(i)=Y(ind);
+    <span class="keyword">else</span>
+         DPS= abs(pXhattemp(i)*W-pXhattemp.*W);
+         DPS(W==0)=3;
+        [mi,ind]=min(DPS);
+        Ybar(i)=Y(ind);
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+tauhats= sum( (2*W-ones(N,1)).*(Y-Ybar./M) )/N; <span class="comment">% tauhat based on thetahats</span>
+
+
+<span class="comment">% compute e_{2i}(w,thetahats) and compute e_1(i)</span>
+<span class="comment">% first compute e_{2i}(W_i, thetahats) and e_{2i}(thetahats)</span>
+e2Wi=zeros(N,1);
+e1=zeros(N,1);
+</pre><h2 id="6">series estimation linear for muwip0 and muwip1</h2><p>serieslinear;</p><h2 id="7">series estimation 3 polinominals for muwip0 and muwip1</h2><p>series3polinominals;</p><h2 id="8">series estimation 4 polinominals for muwip0 and muwip1</h2><p>series3polinominals;</p><h2 id="9">Kernel estimation for muwip0 and muwip1</h2><p>serieskernel;</p><pre class="codeinput">e2=zeros(N,2);
+
+e2(:,1)=e2Wi(Jw(:,1));
+e2(:,2)=e2Wi(Jw(:,2));
+
+<span class="comment">% compute nu</span>
+nu= (1+KMtil/M).*e2;
+
+<span class="comment">% compute bootstrap realized error</span>
+
+nu0= nu(:,1);
+nu1= nu(:,2);
+bterror= e1(S)+Ws.*nu1(S)- W0s.* nu0(S);
+
+
+<span class="comment">% compute the center of bootstrap realized error</span>
+CounterpX= ones(N,1)- pXhattemp;
+center= mean(e1+ pXhattemp.*nu1- CounterpX.* nu0);
+
+<span class="comment">%-----------------Step 5: compute the test statistic--------------%</span>
+t = sum(bterror- center)/sqrt(N);
+Tdistr(sim)=t;
+</pre><pre class="codeinput"><span class="keyword">end</span>
+Crit = invquantile(Tdistr, 1-alpha);
+
+teststat=sqrt(N)*(tauhat-tau);
+ <span class="keyword">if</span> teststat&gt;Crit
+     Rej=Rej+1;
+ <span class="keyword">end</span>
+
+ <span class="keyword">if</span> R==250
+     R
+ <span class="keyword">else</span>
+     <span class="keyword">if</span> R==500
+         R
+     <span class="keyword">else</span> <span class="keyword">if</span> R==750
+             R
+         <span class="keyword">end</span>
+     <span class="keyword">end</span>
+ <span class="keyword">end</span>
+</pre><pre class="codeinput"> <span class="keyword">end</span>
+ RejProb= Rej/Rep;
+ toc
+ time=toc/60;
+fprintf(<span class="string">'DGP1 with N= %d, rejection probabity is %1.3f and time is %4.2f mins'</span>,N, RejProb, time);
+<span class="comment">% The key idea of this bootstrap method is to find the critical value for</span>
+<span class="comment">% tauhat and use the fact that statistic T has the same asymptotic</span>
+<span class="comment">% distribution as sqrt(N)(tauhat-tau). In other words, the bootstrap</span>
+<span class="comment">% procedure is consistent.</span>
+<span class="comment">% Rep=100 might be too small. Need to check for a larger Simulation number.</span>
+
+<span class="comment">% How to deal with unbalanced sample (W,X) and (W^*,X^*)? Drop it?</span>
+
+<span class="comment">% Rejction Probability when N=100 is 0.087 when using kernel qN=5</span>
+<span class="comment">% time = 30.3472 mins</span>
+<span class="comment">% Rejction Probability when N=200 is 0.076 when using kernel</span>
+<span class="comment">% time = 3.4637e+03 sec</span>
+<span class="comment">% Rejction Probability when N=500 is</span>
+<span class="comment">% Rejction Probability when N=1000 is</span>
+
+
+<span class="comment">% Rejction Probability when N=100 is 0.5310 when using series linear qN=5</span>
+<span class="comment">% time = 20.88 mins</span>
+<span class="comment">% Rejction Probability when N=200 is  when using kernel linear qN=5</span>
+<span class="comment">% time =</span>
+
+<span class="comment">% Rejction Probability when N=500 is</span>
+<span class="comment">% Rejction Probability when N=1000 is</span>
+
+<span class="comment">% if use kernel N=200, 1000 repetitions take 0.0798*500=40 mins</span>
+<span class="comment">% if use kernel N=500, 1000 repetitions take 0.1890*500=94 mins</span>
+<span class="comment">% if use kernel N=1000, 1000 repetitions take 0.3848*500=192 mins</span>
+</pre><pre class="codeoutput">Elapsed time is 7.142451 seconds.
+DGP1 with N= 200, rejection probabity is 0.000 and time is 0.12 mins</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2018a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%%%% This code want to implement the Bootstrap Inference Method.
+%%%% DGP1
+%%%% H0: tau<=5 vs H1: tau>5
+clear;
+rng(200);
+N=200;
+alpha=0.05;
+M=1;
+Rep=1;
+Rej=0;
+RepM=1;
+B=400;
+qN=5;
+
+tic
+
+ for R=1:Rep
+% Generate Data
+Blocksize=zeros(qN,2);
+while ~all(Blocksize(:)~=0) % Eliminate unbalanced sample 
+    
+X1= rand(N,1)-0.5*ones(N,1);
+X2= rand(N,1)-0.5*ones(N,1);
+X=[X1 X2];
+U0= normrnd(0,1,N,1);
+U1= normrnd(0,1,N,1);
+Y0= 3*X1-3*X2+U0;
+Y1= 5*ones(N,1)+5*X1+X2+U1;
+tau=5;
+pX= (exp(X1+2*X2))./(ones(N,1)+exp(X1+2*X2));
+W= binornd(1,pX);
+W0= ones(N,1)-W;
+Y= W.*Y1+W0.*Y0;
+
+
+% Estimate theta
+F= @(theta) (exp(theta(1)*X1+theta(2)*X2)./(ones(N,1)+exp(theta(1)*X1+theta(2)*X2)));
+L= @(theta) (-sum(W.*log(F(theta))+(ones(N,1)-W).*log(ones(N,1)-F(theta))));
+% fF= @(theta)((ones(N,1)-(exp(theta(1)*X1+theta(2)*X2)))./(ones(N,1)+exp(theta(1)*X1+theta(2)*X2)) );
+% matrix= @(theta)( W.*fF(theta)-W0.*fF(theta).*exp(theta(1)*X1+theta(2)*X2) );
+% FOC = @(theta)(- sum( (X.* repmat(matrix(theta),1,2)), 1)  );
+theta0=[0.9;1.9];
+% options = optimset('Display','off');
+thetahat= fminsearch(L,theta0);
+pXhat=F(thetahat); % Estimated Propensity Score
+
+% This part is to eliminate unbalanced original sample. 
+qN=5;
+len=floor(N/qN);
+[fvalue,xvalue]=ecdf(pXhat);
+xval=xvalue(2:(N+1));
+PSranking=fvalue(2:(N+1));
+Index= zeros(N,1);
+iblock=zeros(N,1);
+for i=1:N
+    Index(i)= find(pXhat==xval(i));
+end
+Wr= W(Index);
+block= zeros((qN+1),1);
+for i=1:qN
+    block(i+1)= find(PSranking<=(i/qN),1,'last');
+end
+
+
+for i=1:N
+    ipsrank= find(Index==i);
+    block(1)=0;
+   if ipsrank <N
+        iblock(i)= find(block>ipsrank,1,'first')-1;
+    else
+        iblock(i)=qN;
+   end
+    
+    if W(i)==0
+        Blocksize(iblock(i),1)=Blocksize(iblock(i),1)+1;
+    else 
+        Blocksize(iblock(i),2)=Blocksize(iblock(i),2)+1;
+    end
+end
+if ~all(Blocksize(:)~=0)
+    Blocksize=zeros(qN,2);
+    continue
+end
+  
+  break
+end
+
+%% first, construct estimate for ATE tau based on thetahat
+Ybar=zeros(N,1); % i's matcher's average outcome based on thetahat
+for i=1:N
+    if W(i)==1
+        DPS= abs( pXhat(i)*W0-pXhat.*W0 );
+        DPS(W0==0)=3;
+        [mi,ind]=min(DPS); 
+        Ybar(i)=Y(ind);
+    else 
+         DPS= abs(pXhat(i)*W-pXhat.*W);
+         DPS(W==0)=3;
+        [mi,ind]=min(DPS);
+        Ybar(i)=Y(ind);
+    end
+end
+tauhat= sum( (2*W-ones(N,1)).*(Y-Ybar) )/N; % tauhat based on thetahat
+% This will be used in inference. 
+
+% Implement Bootstrap Method 
+
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-Step 0: Obtain M(i) and Jw(i)REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH%
+
+% compute J_{w}(i)
+JNN=zeros(N,1); % compute J_{NN}(i)
+ for i=1:N
+    if W(i)==0
+       Dist= sum(abs( (repmat(X(i,:),N,1)-X).*repmat(W,1,2) ),2);
+       Dist(W==0)=inf;
+       [~,match]=min(Dist);
+       JNN(i)=match;
+    else
+       Dist= sum(abs( (repmat(X(i,:),N,1)-X).*repmat(W0,1,2) ),2);
+       Dist(W0==0)=inf;
+       [~,match]=min(Dist);
+       JNN(i)=match;
+    end
+ end
+Jw=zeros(N,2);
+Jw(:,1)= W0.*[1:N]'+ W.*JNN; % Jw for w=0
+Jw(:,2)= W.*[1:N]'+ W0.*JNN; % Jw for w=1
+
+
+% Obtain Mi which is the multinominal distribution realizations. It is
+% important to obatain it in this application.qN=N^(1/3). qN cannot be too
+% large.
+
+        
+Swli= zeros(N, 3*len); % Each i's match from the other group
+Mi= zeros(N, 3*len);   % Standarized multinominal probabilities
+Matsiz=zeros(N,1); % Number of i's match 
+block(1)=1;
+for i=1:N
+    ipsrank= find(Index==i);
+    if iblock(i) < qN % to be adjusted for other codes. 
+         imatchl= block(iblock(i));
+         imatchu= block((iblock(i)+1))-1;
+    else 
+        imatchl= block(iblock(i));
+        imatchu= block((iblock(i)+1));
+    end
+    
+    blo_ps= Wr( imatchl: imatchu );
+    blo_ind= Index( imatchl: imatchu );
+    blo_ps0= 1-blo_ps;
+    if W(i)==0
+       siz= sum(blo_ps);
+       temp= (blo_ps.* blo_ind)';
+       Swli(i,1:siz)= temp(~(temp==0));
+       pmn= ones(1,siz)/siz;
+       temp=mnrnd(siz,pmn);
+       Mi(i,1:siz)= temp./siz;
+       Matsiz(i)=siz;
+    else 
+       siz= sum(blo_ps0);
+       temp= (blo_ps0.* blo_ind)';
+       Swli(i,1:siz)= temp(~(temp==0));
+       pmn=ones(1,siz)/siz;
+       temp=mnrnd(siz,pmn);
+       Mi(i,1:siz)= temp./siz;
+       Matsiz(i)=siz;
+    end
+end
+
+
+        
+
+
+
+Tdistr=zeros(B,1);
+for sim=1:B
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-Step 1: Sample covariates Xs  REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH%
+N1s= (M+1);
+N0s= (M+1);
+
+while N1s<= (M+1) || N0s<=(M+1) % Eliminate unbalanced bootstrap sample 
+S= unidrnd(N,N,1);
+Xs =zeros(N,2);
+for i=1:N
+    Xs(i,:) = X(S(i),:);
+end
+
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-Step 2: Draw new treatment values WsREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH%
+pXhats= exp(thetahat(1)*Xs(:,1)+thetahat(2)*Xs(:,2))./(ones(N,1)+exp(thetahat(1)*Xs(:,1)+thetahat(2)*Xs(:,2)));
+Ws= binornd(1,pXhats);
+W0s= ones(N,1)-Ws;
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-Step 3: Discard unbalanced samplesREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH%
+ N1s= sum(Ws);
+ N0s= N- N1s;
+ if  N1s<= (M+1) || N0s<=(M+1)
+     continue
+ end
+ break
+end
+
+
+% Estimate theta based bootstrap sample
+F= @(theta) (exp(theta(1)*Xs(:,1)+theta(2)*Xs(:,2))./(ones(N,1)+exp(theta(1)*Xs(:,1)+theta(2)*Xs(:,2))));
+L= @(theta) (-sum(Ws.*log(F(theta))+W0s.*log(ones(N,1)-F(theta))));
+theta0=[0.9;1.9];
+thetahats= fminsearch(L,theta0);
+% pXhats=F(thetahats); % Estimated Propensity Score
+
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-Step 4: Calculate the multiple objectsREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-%
+% compute K_M(i,thetahats)
+pXhattemp= exp(thetahats(1)*X(:,1)+thetahats(2)*X(:,2))./(ones(N,1)+exp(thetahats(1)*X(:,1)+thetahats(2)*X(:,2)));
+Matchset=zeros(N,1); % Match from opposite group for any i=1,...N
+for i=1:N
+    if W(i)==1
+        DPS= abs( pXhattemp(i)*W0-pXhattemp.*W0 );
+        DPS(W0==0)=2;
+        [mi,ind]=min(DPS); 
+        Matchset(i)=ind;
+    else 
+        DPS= abs(pXhattemp(i)*W-pXhattemp.*W);
+        DPS(W==0)=2;
+        [mi,ind]=min(DPS);
+        Matchset(i)=ind;
+    end
+end
+KM=zeros(N,1); % It is K_M(i,thetahats)
+for i=1:N
+    KM(i)= sum(Matchset(:) == i);
+end
+
+
+% compute KMtilde where w \neq W_i  (Comment: this part is currently
+% wrong.)
+KMtilde=zeros(N,1);
+for i=1:N
+    imatchvec= Swli(i,:)';
+    imatch= imatchvec(~(imatchvec==0));
+    imatchsiz= size(imatch);
+    imatchprob= Mi(i,1:imatchsiz);
+    KMtilde(i)= KM(imatch)'* imatchprob';
+end
+
+KMtil= zeros(N,2); % it contains all the matching functions to be used. 
+KMtil(:,1)= W0.*KM+ W.*KMtilde; % KMtil for w=0
+KMtil(:,2)= W.*KM+ W0.*KMtilde; % KMtil for w=1
+
+
+
+
+
+
+% compute tauhats
+%% first, construct estimate for ATE tau based on thetahats
+Ybar=zeros(N,1); % i's matcher's average outcome based on thetahats
+for i=1:N
+    if W(i)==1
+        DPS= abs( pXhattemp(i)*W0-pXhattemp.*W0 );
+        DPS(W0==0)=3;
+        [mi,ind]=min(DPS); 
+        Ybar(i)=Y(ind);
+    else 
+         DPS= abs(pXhattemp(i)*W-pXhattemp.*W);
+         DPS(W==0)=3;
+        [mi,ind]=min(DPS);
+        Ybar(i)=Y(ind);
+    end
+end
+tauhats= sum( (2*W-ones(N,1)).*(Y-Ybar./M) )/N; % tauhat based on thetahats
+
+
+% compute e_{2i}(w,thetahats) and compute e_1(i)
+% first compute e_{2i}(W_i, thetahats) and e_{2i}(thetahats)
+e2Wi=zeros(N,1);
+e1=zeros(N,1);
+
+%% series estimation linear for muwip0 and muwip1
+% serieslinear;
+
+%% series estimation 3 polinominals for muwip0 and muwip1
+% series3polinominals;
+%% series estimation 4 polinominals for muwip0 and muwip1
+% series3polinominals;
+
+%% Kernel estimation for muwip0 and muwip1
+% serieskernel; 
+
+
+e2=zeros(N,2);
+
+e2(:,1)=e2Wi(Jw(:,1));
+e2(:,2)=e2Wi(Jw(:,2));
+
+% compute nu
+nu= (1+KMtil/M).*e2;
+
+% compute bootstrap realized error
+
+nu0= nu(:,1);
+nu1= nu(:,2); 
+bterror= e1(S)+Ws.*nu1(S)- W0s.* nu0(S);
+
+
+% compute the center of bootstrap realized error 
+CounterpX= ones(N,1)- pXhattemp;
+center= mean(e1+ pXhattemp.*nu1- CounterpX.* nu0);
+
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-Step 5: compute the test statisticREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH%
+t = sum(bterror- center)/sqrt(N);
+Tdistr(sim)=t;
+end
+Crit = invquantile(Tdistr, 1-alpha);
+
+teststat=sqrt(N)*(tauhat-tau);
+ if teststat>Crit
+     Rej=Rej+1;
+ end
+ 
+ if R==250
+     R
+ else 
+     if R==500
+         R
+     else if R==750
+             R
+         end
+     end
+ end
+     
+ end
+ RejProb= Rej/Rep;
+ toc 
+ time=toc/60;
+fprintf('DGP1 with N= %d, rejection probabity is %1.3f and time is %4.2f mins',N, RejProb, time);
+% The key idea of this bootstrap method is to find the critical value for
+% tauhat and use the fact that statistic T has the same asymptotic
+% distribution as sqrt(N)(tauhat-tau). In other words, the bootstrap
+% procedure is consistent. 
+% Rep=100 might be too small. Need to check for a larger Simulation number.
+
+% How to deal with unbalanced sample (W,X) and (W^*,X^*)? Drop it?
+
+% Rejction Probability when N=100 is 0.087 when using kernel qN=5
+% time = 30.3472 mins
+% Rejction Probability when N=200 is 0.076 when using kernel 
+% time = 3.4637e+03 sec
+% Rejction Probability when N=500 is 
+% Rejction Probability when N=1000 is 
+
+
+% Rejction Probability when N=100 is 0.5310 when using series linear qN=5
+% time = 20.88 mins
+% Rejction Probability when N=200 is  when using kernel linear qN=5
+% time = 
+
+% Rejction Probability when N=500 is 
+% Rejction Probability when N=1000 is 
+
+% if use kernel N=200, 1000 repetitions take 0.0798*500=40 mins
+% if use kernel N=500, 1000 repetitions take 0.1890*500=94 mins
+% if use kernel N=1000, 1000 repetitions take 0.3848*500=192 mins
+##### SOURCE END #####
+--></body></html>
