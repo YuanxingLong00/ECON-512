@@ -4,15 +4,16 @@
 clear;
 rng(135);
 N=100;
+N
 alpha=0.05;
 M=1;
-Rep=100;
+Rep=1000;
 Rej=zeros(Rep,1);
 RepM=1;
 B=400;
 qN=5;
 
-
+tic
  for R=1:Rep
 % Generate Data
 Blocksize=zeros(qN,2);
@@ -53,6 +54,7 @@ len=floor(N/qN);
 xval=xvalue(2:(N+1));
 PSranking=fvalue(2:(N+1));
 Index= zeros(N,1);
+iblock=zeros(N,1);
 for i=1:N
     Index(i)= find(pXhat==xval(i));
 end
@@ -65,20 +67,15 @@ end
 for i=1:N
     ipsrank= find(Index==i);
     block(1)=0;
-    iblo= find(block>ipsrank,1,'first')-1;
-    if ipsrank==N
-        iblo=qN;
+    if ipsrank <N
+        iblock(i)= find(block>ipsrank,1,'first')-1;
+    else
+        iblock(i)=qN;
     end
-    block(1)=1;
-    imatchl= block(iblo);
-    imatchu= block((iblo+1))-1;
-    blo_ps= Wr( imatchl: imatchu );
-    blo_ind= Index( imatchl: imatchu );
-    blo_ps0= 1-blo_ps;
     if W(i)==0
-        Blocksize(iblo,1)=Blocksize(iblo,1)+1;
+        Blocksize(iblock(i),1)=Blocksize(iblock(i),1)+1;
     else 
-        Blocksize(iblo,2)=Blocksize(iblo,2)+1;
+        Blocksize(iblock(i),2)=Blocksize(iblock(i),2)+1;
     end
 end
 if ~all(Blocksize(:)~=0)
@@ -139,16 +136,17 @@ Jw(:,2)= W.*[1:N]'+ W0.*JNN; % Jw for w=1
 Swli= zeros(N, 3*len); % Each i's match from the other group
 Mi= zeros(N, 3*len);   % Standarized multinominal probabilities
 Matsiz=zeros(N,1); % Number of i's match   
+block(1)=1;
 for i=1:N
     ipsrank= find(Index==i);
-    block(1)=0;
-    iblo= find(block>ipsrank,1,'first')-1;
-    if ipsrank==N
-        iblo=qN;
+    if iblock(i) < qN % to be adjusted for other codes. 
+         imatchl= block(iblock(i));
+         imatchu= block((iblock(i)+1))-1;
+    else 
+        imatchl= block(iblock(i));
+        imatchu= block((iblock(i)+1));
     end
-    block(1)=1;
-    imatchl= block(iblo);
-    imatchu= block((iblo+1))-1;
+    
     blo_ps= Wr( imatchl: imatchu );
     blo_ind= Index( imatchl: imatchu );
     blo_ps0= 1-blo_ps;
@@ -317,9 +315,23 @@ teststat=sqrt(N)*(tauhat-tau);
  else
     Rej(R)=0;
  end
- R
+  
+ if R==250
+     R
+ else 
+     if R==500
+         R
+     else if R==750
+             R
+         end
+     end
  end
- RejProb= sum(Rej)/Rep;
+ 
+ end
+ toc
+ time=toc/60
+ 
+ RejProb= sum(Rej)/Rep
 
 % The key idea of this bootstrap method is to find the critical value for
 % tauhat and use the fact that statistic T has the same asymptotic
@@ -327,9 +339,10 @@ teststat=sqrt(N)*(tauhat-tau);
 % procedure is consistent. 
 % Rep=100 might be too small. Need to check for a larger Simulation number.
 
-% How to deal with unbalanced sample (W,X) and (W^*,X^*)? Drop it?
+% How to deal with unbalanced sample (W,X) and (W^*,X^*)? Drop it.
 
-% Rejction Probability when N=100 is 
+% Rejction Probability when N=100 is 0.094 if use Kernel qN=5
+% time = 48.1558
 
 % Rejction Probability when N=200 is 
 

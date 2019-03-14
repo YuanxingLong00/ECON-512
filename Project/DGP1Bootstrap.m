@@ -7,8 +7,8 @@ N=100;
 N
 alpha=0.05;
 M=1;
-Rep=1000;
-Rej=zeros(Rep,1);
+Rep=100;
+Rej=0;
 RepM=1;
 B=400;
 qN=5;
@@ -52,6 +52,7 @@ len=floor(N/qN);
 xval=xvalue(2:(N+1));
 PSranking=fvalue(2:(N+1));
 Index= zeros(N,1);
+iblock=zeros(N,1);
 for i=1:N
     Index(i)= find(pXhat==xval(i));
 end
@@ -65,20 +66,16 @@ end
 for i=1:N
     ipsrank= find(Index==i);
     block(1)=0;
-    iblo= find(block>ipsrank,1,'first')-1;
-    if ipsrank==N
-        iblo=qN;
-    end
-    block(1)=1;
-    imatchl= block(iblo);
-    imatchu= block((iblo+1))-1;
-    blo_ps= Wr( imatchl: imatchu );
-    blo_ind= Index( imatchl: imatchu );
-    blo_ps0= 1-blo_ps;
+   if ipsrank <N
+        iblock(i)= find(block>ipsrank,1,'first')-1;
+    else
+        iblock(i)=qN;
+   end
+    
     if W(i)==0
-        Blocksize(iblo,1)=Blocksize(iblo,1)+1;
+        Blocksize(iblock(i),1)=Blocksize(iblock(i),1)+1;
     else 
-        Blocksize(iblo,2)=Blocksize(iblo,2)+1;
+        Blocksize(iblock(i),2)=Blocksize(iblock(i),2)+1;
     end
 end
 if ~all(Blocksize(:)~=0)
@@ -138,17 +135,18 @@ Jw(:,2)= W.*[1:N]'+ W0.*JNN; % Jw for w=1
         
 Swli= zeros(N, 3*len); % Each i's match from the other group
 Mi= zeros(N, 3*len);   % Standarized multinominal probabilities
-Matsiz=zeros(N,1); % Number of i's match   
+Matsiz=zeros(N,1); % Number of i's match 
+block(1)=1;
 for i=1:N
     ipsrank= find(Index==i);
-    block(1)=0;
-    iblo= find(block>ipsrank,1,'first')-1;
-    if ipsrank==N
-        iblo=qN;
+    if iblock(i) < qN % to be adjusted for other codes. 
+         imatchl= block(iblock(i));
+         imatchu= block((iblock(i)+1))-1;
+    else 
+        imatchl= block(iblock(i));
+        imatchu= block((iblock(i)+1));
     end
-    block(1)=1;
-    imatchl= block(iblo);
-    imatchu= block((iblo+1))-1;
+    
     blo_ps= Wr( imatchl: imatchu );
     blo_ind= Index( imatchl: imatchu );
     blo_ps0= 1-blo_ps;
@@ -316,7 +314,7 @@ Crit = invquantile(Tdistr, 1-alpha);
 
 teststat=sqrt(N)*(tauhat-tau);
  if teststat>Crit
-     Rej(R)=1;
+     Rej=Rej+1;
  end
  
  if R==250
@@ -331,7 +329,7 @@ teststat=sqrt(N)*(tauhat-tau);
  end
      
  end
- RejProb= sum(Rej)/Rep
+ RejProb= Rej/Rep
  toc 
  time=toc/60
 
@@ -344,9 +342,9 @@ teststat=sqrt(N)*(tauhat-tau);
 % How to deal with unbalanced sample (W,X) and (W^*,X^*)? Drop it?
 
 % Rejction Probability when N=100 is 0.087 when using kernel qN=5
-% time = 30.3472
+% time = 30.3472 mins
 % Rejction Probability when N=200 is 0.076 when using kernel 
-% time = 3.4637e+03
+% time = 3.4637e+03 sec
 % Rejction Probability when N=500 is 
 % Rejction Probability when N=1000 is 
 
@@ -355,13 +353,9 @@ teststat=sqrt(N)*(tauhat-tau);
 % time = 20.88 mins
 % Rejction Probability when N=200 is  when using kernel linear qN=5
 % time = 
+
 % Rejction Probability when N=500 is 
 % Rejction Probability when N=1000 is 
 
 
-% Rejction Probability when N=100 is  when using series 3 polinominals qN=5
-% time = mins
-% Rejction Probability when N=200 is  when using kernel linear qN=5
-% time = 
-% Rejction Probability when N=500 is 
-% Rejction Probability when N=1000 is 
+

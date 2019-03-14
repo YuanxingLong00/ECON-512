@@ -1,13 +1,15 @@
 %% Empirical Project Adusumilli's JMP 
 %% First, Four SImulations with different DGP
 % First, Simulation with DGP taken from Abadie and Imbens (2016).
-% DGP 1 two-sided test
+% DGP 1 one-sided test 
 clear;
-rng(115)
-N=100;
+rng(135)
+N=1000;
+N
 Rej=0;
 alpha=0.05;
-Crit= norminv(1-alpha/2);
+Crit= norminv(1-alpha);
+tic 
 
 for k=1:1000
 X1= rand(N,1)-0.5*ones(N,1);
@@ -130,19 +132,29 @@ I= s2/N;
 cT=s1/N;
 vartau=sigmasq-cT*(I\cT'); % estimated variance based on estimated propensity score. 
 
- asystat=sqrt(N)*abs(tautilde-tau)/sqrt(vartau); % test statistic for two-sided test, alpha=5%
+ asystat=sqrt(N)*(tautilde-tau)/sqrt(vartau); % test statistic for two-sided test, alpha=5%
 if asystat>Crit
    Rej=Rej+1;
 end
+if k==300
+    k
+else if k==600
+        k
+    end
 end
 
-RejProb=Rej/1000;
+end
+toc 
+time =toc/60
+RejProb=Rej/1000
 
 
 %% The simulated rejection probability is 5.4% which is correct now. 
 % The key point is that we need to estimate the conditonal mean by using
 % series estimation method instead of using kernels. 
-
-
-
+%% Rejection Probability:
+% If use N=100, 0.056,  time = 0.3215 min
+% If use N=200, 0.049,  time = 0.6599 min
+% If use N=500, 0.053,  time = 2.1597 mins
+% If use N=1000, 0.052, time = 7.3425 mins
 

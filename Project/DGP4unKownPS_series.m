@@ -1,11 +1,12 @@
-% DGP 4 two-sided test
+% DGP 4 one-sided test
 clear;
 rng(115)
-N=100;
+N=1000;
+N
 Rej=0;
 alpha=0.05;
-Crit= norminv(1-alpha/2);
-
+Crit= norminv(1-alpha);
+tic
 for k=1:1000
 X=normrnd(0,1,N,4);
 X1=X(:,1);
@@ -71,7 +72,7 @@ tautilde= sum( (2*W-ones(N,1)).*(Y-Ybar1) )/N; % tautilde based on estimated pro
 
 %%%% Estimate asymptotic variance of tauhat when propensity score is known but based on estimated prop score 
 K= @(u) ( 0.75*(ones(N,1)-u.^2).*indicator(u) ); % The kernel to be used 
-h= 1/sqrt(N); % bandwidth 
+h= 4/sqrt(N); % bandwidth 
 
 mu1= @(p) ( sum( (Y.*W).*K((pXhat-p*ones(N,1))/h) ) ./ sum( W.*K((pXhat-p*ones(N,1))/h) ) ); % mu(1,p)
 mu0= @(p) ( sum( (Y.*(ones(N,1)-W)).*K((pXhat-p*ones(N,1))/h) ) ./ sum( (ones(N,1)-W).*K((pXhat-p*ones(N,1))/h) ) ); % mu(0,p)
@@ -130,17 +131,19 @@ I= s2/N;
 cT=s1/N;
 vartau=sigmasq-cT*(I\cT'); % estimated variance based on estimated propensity score. 
 
- asystat=sqrt(N)*abs(tautilde-tau)/sqrt(vartau); % test statistic for two-sided test, alpha=5%
+ asystat=sqrt(N)*(tautilde-tau)/sqrt(vartau); % test statistic for two-sided test, alpha=5%
 if asystat>Crit
    Rej=Rej+1;
 end
 end
-
-RejProb=Rej/1000;
-
-
-%% The simulated rejection probability is 3.2%
+toc 
+time= toc/60
+RejProb=Rej/1000
 
 
-
+%% Rejection Probabilities: 
+% If use N=100, 0.030, time = 0.3785 mins
+% If use N=200, 0.030, time = 0.7 mins 
+% If use N=500,  0.040, time = 2.52 mins 
+% If use N=1000, 0.045, time = 7.1 mins 
 

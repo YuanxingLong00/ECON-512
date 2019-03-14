@@ -1,11 +1,12 @@
-%%%% DGP2 
+%%%% DGP2 one sided test
 clear;
 rng(115)
-N=100;
+N=1000;
+N
 Rej=0;
 alpha=0.05;
-Crit= norminv(1-alpha/2);
-
+Crit= norminv(1-alpha);
+tic 
 for k=1:1000
 X1= rand(N,1)-0.5*ones(N,1);
 X2= rand(N,1)-0.5*ones(N,1);
@@ -130,19 +131,23 @@ I= s2/N;
 cT=s1/N;
 vartau=sigmasq-cT*(I\cT'); % estimated variance based on estimated propensity score. 
 
- asystat=sqrt(N)*abs(tautilde-tau)/sqrt(vartau); % test statistic for two-sided test, alpha=5%
+ asystat=sqrt(N)*(tautilde-tau)/sqrt(vartau); % test statistic for two-sided test, alpha=5%
 if asystat>Crit
    Rej=Rej+1;
 end
 end
-
-RejProb=Rej/1000;
+toc
+time= toc/60
+RejProb=Rej/1000
 
 
 %% The simulated rejection probability is 5.4% which is correct now. 
 % The key point is that we need to estimate the conditonal mean by using
 % series estimation method instead of using kernels. 
 
-% Rejection Probability is 0.0560
-
+% Rejection Probabilities: 
+% If use N=100, 0.059,  time = 0.3639 min
+% If use N=200, 0.047,  time =  0.7446 min
+% If use N=500, 0.044,  time = 2.1030 mins
+% If use N=1000, 0.053, time =5.9605 mins
 

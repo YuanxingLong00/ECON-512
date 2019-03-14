@@ -1,11 +1,12 @@
-% DGP 3 two-sided test
+% DGP 3 one-sided test
 clear;
 rng(115)
-N=100;
+N=1000;
+N
 Rej=0;
 alpha=0.05;
-Crit= norminv(1-alpha/2);
-
+Crit= norminv(1-alpha);
+tic
 for k=1:1000
 X1= rand(N,1)-0.5*ones(N,1);
 X2= rand(N,1)-0.5*ones(N,1);
@@ -127,19 +128,23 @@ I= s2/N;
 cT=s1/N;
 vartau=sigmasq-cT*(I\cT'); % estimated variance based on estimated propensity score. 
 
- asystat=sqrt(N)*abs(tautilde-tau)/sqrt(vartau); % test statistic for two-sided test, alpha=5%
+ asystat=sqrt(N)*(tautilde-tau)/sqrt(vartau); % test statistic for two-sided test, alpha=5%
 if asystat>Crit
    Rej=Rej+1;
 end
 end
-
-RejProb=Rej/1000;
+toc 
+time =toc/60
+RejProb=Rej/1000
 
 
 
 % The key point is that we need to estimate the conditonal mean by using
 % series estimation method instead of using kernels. 
 
-% Rejction Probability is 9.7%
-
+% Rejection Probabilities: 
+% If use N=100,  0.079,  time =  0.3227 min
+% If use N=200,  0.087,  time =  0.6447 min
+% If use N=500,  0.084,  time =  2.1597 mins
+% If use N=1000, 0.065, time =   7.3425 mins
 
