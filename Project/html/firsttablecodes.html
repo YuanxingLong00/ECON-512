@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>firsttablecodes</title><meta name="generator" content="MATLAB 9.4"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-03-14"><meta name="DC.source" content="firsttablecodes.m"><style type="text/css">
+      --><title>table 1 and table 2</title><meta name="generator" content="MATLAB 9.4"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-03-14"><meta name="DC.source" content="firsttablecodes.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -66,67 +66,324 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><pre class="codeinput">clear;
+  </style></head><body><div class="content"><h1>table 1 and table 2</h1><p>first table</p><pre class="codeinput">clear;
 N=200;
+qN=5;
 DGP1Bootstrap;
 
 clear;
 N=500;
+qN=5;
 DGP1Bootstrap;
 
 clear;
 N=1000;
+qN=5;
 DGP1Bootstrap;
 
 clear;
 N=200;
+qN=5;
 DGP2Bootstrap;
 
 clear;
 N=500;
+qN=5;
 DGP2Bootstrap;
 
 clear;
 N=1000;
+qN=5;
 DGP2Bootstrap;
-</pre><pre class="codeoutput">Elapsed time is 2.204084 seconds.
-DGP1 with N= 200, rejection probabity is 0.000 and time is 0.04 mins
-Elapsed time is 5.221528 seconds.
-DGP1 with N= 500, rejection probabity is 0.000 and time is 0.09 mins
-Elapsed time is 12.881852 seconds.
-DGP1 with N= 1000, rejection probabity is 1.000 and time is 0.21 mins
-</pre><pre class="codeoutput error">Undefined function or variable 'iblo'.
 
-Error in DGP2Bootstrap (line 69)
-        Blocksize(iblo,1)=Blocksize(iblo,1)+1;
+clear;
+N=200;
+qN=5;
+DGP3Bootstrap;
 
-Error in firsttablecodes (line 15)
+clear;
+N=500;
+qN=5;
+DGP3Bootstrap;
+
+clear;
+N=1000;
+qN=5;
+DGP3Bootstrap;
+
+clear;
+N=200;
+qN=5;
+DGP4Bootstrap;
+
+clear;
+N=500;
+qN=5;
+DGP4Bootstrap;
+
+clear;
+N=1000;
+qN=5;
+DGP4Bootstrap;
+
+<span class="comment">% second table with different qN</span>
+clear;
+N=500;
+qN=1;
+DGP1Bootstrap;
+
+clear;
+N=500;
+qN=1;
 DGP2Bootstrap;
+
+clear;
+N=500;
+qN=1;
+DGP3Bootstrap;
+
+clear;
+N=500;
+qN=1;
+DGP4Bootstrap;
+
+clear;
+N=500;
+qN=2;
+DGP1Bootstrap;
+
+clear;
+N=500;
+qN=2;
+DGP2Bootstrap;
+
+clear;
+N=500;
+qN=2;
+DGP3Bootstrap;
+
+clear;
+N=500;
+qN=2;
+DGP4Bootstrap;
+
+clear;
+N=500;
+qN=8;
+DGP1Bootstrap;
+
+clear;
+N=500;
+qN=8;
+DGP2Bootstrap;
+
+clear;
+N=500;
+qN=8;
+DGP3Bootstrap;
+
+clear;
+N=500;
+qN=8;
+DGP4Bootstrap;
+</pre><pre class="codeoutput">Elapsed time is 4.210772 seconds.
+DGP1 with N= 200 and qN=5, rejection probabity is 0.000 and time is 0.07 mins
+
+Elapsed time is 11.760362 seconds.
+DGP1 with N= 500 and qN=5, rejection probabity is 0.000 and time is 0.20 mins
+
+Elapsed time is 35.091869 seconds.
+DGP1 with N= 1000 and qN=5, rejection probabity is 0.000 and time is 0.58 mins
+
+Elapsed time is 3.650415 seconds.
+DGP2 with N= 200 and qN=5, rejection probabity is 0.000 and time is 0.06 mins
+
+Elapsed time is 11.701678 seconds.
+DGP2 with N= 500 and qN=5, rejection probabity is 0.000 and time is 0.20 mins
+
+Elapsed time is 35.416795 seconds.
+DGP2 with N= 1000 and qN=5, rejection probabity is 0.000 and time is 0.59 mins
+
+Elapsed time is 3.785752 seconds.
+DGP3 with N= 200 and qN=5, rejection probabity is 0.000 and time is 0.06 mins
+
+Elapsed time is 11.295230 seconds.
+DGP3 with N= 500 and qN=5, rejection probabity is 0.000 and time is 0.19 mins
+
+Elapsed time is 33.209917 seconds.
+DGP3 with N= 1000 and qN=5, rejection probabity is 0.000 and time is 0.55 mins
+
+Elapsed time is 5.381190 seconds.
+DGP4 with N= 200 and qN=5, rejection probabity is 0.000 and time is 0.09 mins
+
+Elapsed time is 13.997490 seconds.
+DGP4 with N= 500 and qN=5, rejection probabity is 0.000 and time is 0.23 mins
+
+Elapsed time is 36.837057 seconds.
+DGP4 with N= 1000 and qN=5, rejection probabity is 0.000 and time is 0.61 mins
+
+Elapsed time is 14.906507 seconds.
+DGP1 with N= 500 and qN=1, rejection probabity is 0.000 and time is 0.25 mins
+
+Elapsed time is 15.032837 seconds.
+DGP2 with N= 500 and qN=1, rejection probabity is 0.000 and time is 0.25 mins
+
+Elapsed time is 14.550737 seconds.
+DGP3 with N= 500 and qN=1, rejection probabity is 0.000 and time is 0.24 mins
+
+Elapsed time is 17.124002 seconds.
+DGP4 with N= 500 and qN=1, rejection probabity is 0.000 and time is 0.29 mins
+
+Elapsed time is 12.662562 seconds.
+DGP1 with N= 500 and qN=2, rejection probabity is 0.000 and time is 0.21 mins
+
+Elapsed time is 12.368505 seconds.
+DGP2 with N= 500 and qN=2, rejection probabity is 0.000 and time is 0.21 mins
+
+Elapsed time is 12.025832 seconds.
+DGP3 with N= 500 and qN=2, rejection probabity is 0.000 and time is 0.20 mins
+
+Elapsed time is 14.700322 seconds.
+DGP4 with N= 500 and qN=2, rejection probabity is 0.000 and time is 0.25 mins
+
+Elapsed time is 11.625531 seconds.
+DGP1 with N= 500 and qN=8, rejection probabity is 0.000 and time is 0.19 mins
+
+Elapsed time is 11.499985 seconds.
+DGP2 with N= 500 and qN=8, rejection probabity is 0.000 and time is 0.19 mins
+
+Elapsed time is 11.054193 seconds.
+DGP3 with N= 500 and qN=8, rejection probabity is 0.000 and time is 0.18 mins
+
+Elapsed time is 13.729842 seconds.
+DGP4 with N= 500 and qN=8, rejection probabity is 0.000 and time is 0.23 mins
+
 </pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2018a</a><br></p></div><!--
 ##### SOURCE BEGIN #####
+%% table 1 and table 2 
+% first table 
 clear;
 N=200;
+qN=5;
 DGP1Bootstrap;
 
 clear;
 N=500;
+qN=5;
 DGP1Bootstrap;
 
 clear;
 N=1000;
+qN=5;
 DGP1Bootstrap;
 
 clear;
 N=200;
+qN=5;
 DGP2Bootstrap;
 
 clear;
 N=500;
+qN=5;
 DGP2Bootstrap;
 
 clear;
 N=1000;
+qN=5;
 DGP2Bootstrap;
+
+clear;
+N=200;
+qN=5;
+DGP3Bootstrap;
+
+clear;
+N=500;
+qN=5;
+DGP3Bootstrap;
+
+clear;
+N=1000;
+qN=5;
+DGP3Bootstrap;
+
+clear;
+N=200;
+qN=5;
+DGP4Bootstrap;
+
+clear;
+N=500;
+qN=5;
+DGP4Bootstrap;
+
+clear;
+N=1000;
+qN=5;
+DGP4Bootstrap;
+
+% second table with different qN
+clear;
+N=500;
+qN=1;
+DGP1Bootstrap;
+
+clear;
+N=500;
+qN=1;
+DGP2Bootstrap;
+
+clear;
+N=500;
+qN=1;
+DGP3Bootstrap;
+
+clear;
+N=500;
+qN=1;
+DGP4Bootstrap;
+
+clear;
+N=500;
+qN=2;
+DGP1Bootstrap;
+
+clear;
+N=500;
+qN=2;
+DGP2Bootstrap;
+
+clear;
+N=500;
+qN=2;
+DGP3Bootstrap;
+
+clear;
+N=500;
+qN=2;
+DGP4Bootstrap;
+
+clear;
+N=500;
+qN=8;
+DGP1Bootstrap;
+
+clear;
+N=500;
+qN=8;
+DGP2Bootstrap;
+
+clear;
+N=500;
+qN=8;
+DGP3Bootstrap;
+
+clear;
+N=500;
+qN=8;
+DGP4Bootstrap;
+
+
 
 
 ##### SOURCE END #####

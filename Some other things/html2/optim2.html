@@ -1,0 +1,443 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Lecture 6 - Direction-Set and Quasi-Newton Optimization Methods</title><meta name="generator" content="MATLAB 9.4"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-10-03"><meta name="DC.source" content="optim2.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Lecture 6 - Direction-Set and Quasi-Newton Optimization Methods</h1><!--introduction--><p>Last week we examined optimization algorithms, ending with Newton's Method. This week we'll go over a series of methods inspired by Newton's method which are commonly implemented in practice.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Stopping Criteria for Newton and Quasi-Newton Methods</a></li><li><a href="#2">Overview: Generic Direction Set Methods</a></li><li><a href="#3">Steepest Descent</a></li><li><a href="#5">Davidson-Fletcher-Powell (DFP) and Broyden-Fletcher-Goldfarb-Shano (BFGS)</a></li><li><a href="#9">Line Search</a></li><li><a href="#10">Conjugate Gradient Iterations</a></li><li><a href="#11">Limited Memory BFGS (L-BFGS)</a></li></ul></div><h2 id="1">Stopping Criteria for Newton and Quasi-Newton Methods</h2><p>Unlike bracketing, or the area of the simplex for Nelder-Mead. We can't simply think about a shrinking interval for Newton methods. Instead, we use two stopping rules based on the information we've computed.</p><p>First, has the sequence of guesses converged:</p><p><img src="optim2_eq09795297698991984130.png" alt="$$ ||x^{(k)} - x^{(k+1)}|| < \varepsilon(1 + ||x^{(k)}||)$" style="width:144px;height:14px;"></p><p>This is a relative stopping rule, since it is scaled by the norm of <img src="optim2_eq01769579049475718566.png" alt="$x^{(k)}$" style="width:16px;height:11px;">, the 1 simply deals with the case where <img src="optim2_eq01769579049475718566.png" alt="$x^{(k)}$" style="width:16px;height:11px;"> is near the origin.</p><p>Second, we want to know if we are at a local miniumum:</p><p><img src="optim2_eq17268999240345779669.png" alt="$$ ||\nabla f(x^{(k)}) || < \delta(1 + f(x^{(k)}))$$" style="width:131px;height:14px;"></p><p>If this condition does not hold, then we have converged to a non-optimal point, and cannot claim the problem has been solved. Even if it does hold, we want to also check the first condition to make sure the problem doesn't just have a ``plateau'' near the optimum.</p><p>How to choose <img src="optim2_eq06646721004341227832.png" alt="$\delta$" style="width:5px;height:9px;"> and <img src="optim2_eq04934585835479885722.png" alt="$\varepsilon$" style="width:5px;height:6px;">?</p><div><ul><li>Can't be lower (or same order as) machine epsilon, <img src="optim2_eq01443095193200861988.png" alt="$eps$" style="width:16px;height:8px;">.</li><li>Should not be tighter than the accuracy with which you are computing <img src="optim2_eq12140449060391054904.png" alt="$\nabla f(x^{(k)})$" style="width:40px;height:13px;"> (finite differences?).</li><li>Often use values between <img src="optim2_eq11487968900515343098.png" alt="$eps^{(1/4)}$" style="width:33px;height:13px;"> and <img src="optim2_eq09589501115149669238.png" alt="$eps^{(1/2)}$" style="width:33px;height:13px;">.</li></ul></div><h2 id="2">Overview: Generic Direction Set Methods</h2><p>Judd offers a ``generic algorithm'' which incorporates both a Hessian approximation and a line search:</p><p><b>Initialization:</b> Choose initial guess <img src="optim2_eq03117009619418646773.png" alt="$x^{(0)}$" style="width:15px;height:11px;"> and stopping parameters <img src="optim2_eq06646721004341227832.png" alt="$\delta$" style="width:5px;height:9px;"> and <img src="optim2_eq14923977401352910320.png" alt="$\varepsilon &gt; 0$" style="width:25px;height:8px;">.</p><div><ol><li>Compute search direction <img src="optim2_eq06683970359175972997.png" alt="$s^k$" style="width:9px;height:10px;">.</li><li>Find <img src="optim2_eq12824216610100386060.png" alt="$\lambda_k$" style="width:10px;height:10px;"> that solves <img src="optim2_eq06459648035830519273.png" alt="$\min_{\lambda} f(x^{(k)} + \lambda s^k)$" style="width:86px;height:13px;">.</li><li>Assign <img src="optim2_eq15898636801743606190.png" alt="$x^{(k+1)} \rightarrow x^{(k)} + \lambda_k s^k$" style="width:95px;height:12px;">.</li><li>If <img src="optim2_eq03715814460418776535.png" alt="$||x^{(k)} - x^{(k+1)}|| < \epsilon(1 + ||x^k||)$" style="width:138px;height:13px;"> go to 5, else, go to 1.</li><li>If <img src="optim2_eq10367926755922445983.png" alt="$||\nabla f(x^{(k)}) || < \delta(1 + f(x^{(k)}))$" style="width:131px;height:13px;">, Return convergence to local optimum, else, return convergence to non-optimal point.</li></ol></div><p>The two ingredients are picking a direction, and a step length. First, let's consider how to pick a direction, keeping step length fixed.</p><h2 id="3">Steepest Descent</h2><p>The simplist quasi-Newton method simply replaces the Hessian with the identity matrix. This means the direction is entirely determined by the gradient.</p><p><img src="optim2_eq11352479318660655327.png" alt="$$ x^{(k+1)} \leftarrow x^{(k)} - \nabla f(x^{(k)}) $$" style="width:115px;height:14px;"></p><p>Advantages and disadvantages:</p><div><ul><li>Always moves towards an optimum.</li><li>Ignores curvature information</li><li>Linear convergence only.</li></ul></div><p>In practice, this is not likely to work unless we dampen the step length. either by adding a line search or simply shortening the step size using a constant factor <img src="optim2_eq05508344529756732484.png" alt="$a$" style="width:6px;height:6px;">. Here is an implemention edited from our Newton code last week:</p><p>Recall we want to minimize:</p><p><img src="optim2_eq07450981496122028925.png" alt="$$f(x)=(x_1-x_2)^4+2x_1^2+x_2^2-x_1+2x_2$$" style="width:190px;height:13px;"></p><p>So we use:</p><pre class="codeinput">n=0;            <span class="comment">%initialize iteration counter</span>
+focerr=1;          <span class="comment">%initialize error</span>
+x = [1; 1];
+<span class="comment">%x=[.05;-.5];        %set starting value</span>
+<span class="comment">%</span>
+a = 0.09; <span class="comment">%dampen value, if we set this anywhere near 1, things will blow up.</span>
+
+<span class="comment">%Computation loop</span>
+<span class="keyword">while</span> focerr&gt;1e-5&amp;n&lt;100
+    <span class="comment">%Compute Gradient</span>
+    gradf=[4*(x(1)-x(2))^3+4*x(1)-1;<span class="keyword">...</span>
+          -4*(x(1)-x(2))^3+2*x(2)+2];
+
+    <span class="comment">%Compute Hessian (only for Newton)</span>
+    <span class="comment">%Hf=     [12*(x(1)-x(2))^2+4,  -12*(x(1)-x(2))^2;...</span>
+    <span class="comment">%        -12*(x(1)-x(2))^2,    12*(x(1)-x(2))^2+2];</span>
+
+    <span class="comment">%Perform Iteration</span>
+      <span class="comment">%Newton:</span>
+      <span class="comment">%y=x-Hf\gradf</span>
+      <span class="comment">%Steepest Descent:</span>
+      y = x - a*gradf;
+
+    x=y;
+    n=n+1;
+
+    <span class="comment">%Calculate FOC Error</span>
+    focerr= norm(gradf);
+
+<span class="keyword">end</span>
+n,x,focerr,        <span class="comment">%display end values</span>
+</pre><pre class="codeoutput">
+n =
+
+    46
+
+
+x =
+
+    0.0335
+   -0.5670
+
+
+focerr =
+
+   7.5562e-06
+
+</pre><p>Recall that Newton's method solved this problem in only 8 iterations. Also, check what happens when we raise <img src="optim2_eq05508344529756732484.png" alt="$a$" style="width:6px;height:6px;"> closer to 1.</p><h2 id="5">Davidson-Fletcher-Powell (DFP) and Broyden-Fletcher-Goldfarb-Shano (BFGS)</h2><p>Steepest descents biggest disadvantage is that it completely ignores curvature. DFP and BFGS are more akin to our nonlinear equations quasi-Newton methods in that they use consecutive iterates to estimate curvature.</p><p>Both satisfy the <b>quasi-Newton</b> Condition. Whereas a Newton step is approximately,</p><p><img src="optim2_eq11415214212438945856.png" alt="$$ x^{(k+1)} - x^{(k)} = d^{(k)} \approx  H^{-1}(x^{(k)}) [ \nabla f(x^{(k)} + d^{(k)} ) - \nabla f(x^{(k)})] $$" style="width:280px;height:14px;"></p><p>Where the approximation comes from a finite difference intuition. The quasi-Newton condition selects a hessian approxmation to satisfies this exactly:</p><p><img src="optim2_eq15990199091200720457.png" alt="$$ d^{(k)} =  B^{(k)} [ \nabla f(x^{(k)} + d^{(k)} ) - \nabla f(x^{(k)})] $$" style="width:182px;height:14px;"></p><p>DFP and BFGS are simply two different updating schemes that satisfy this condtion. They are both generalizations of the secant method.</p><p>DFP:</p><p><img src="optim2_eq07094440716679870402.png" alt="$$ B^{(k+1)} \leftarrow B^{(k)} + \frac{dd^T}{d^T u} - \frac{B^{(k)} u u^T B}{u^T B^{(k)} u} $$" style="width:163px;height:26px;"></p><p>where <img src="optim2_eq15984073610100270093.png" alt="$u = \nabla f(x^{(k+1)}) - \nabla f(x^{(k)})$" style="width:126px;height:13px;">.</p><p>BFGS:</p><p><img src="optim2_eq07579375495181443824.png" alt="$$ B^{(k+1)} \leftarrow B^{(k)} + \frac{1}{d^T u} \left( wd^T + dw^T - \frac{w^Tu}{d^T u} dd^T \right) $$" style="width:224px;height:28px;"></p><p>where <img src="optim2_eq08785244501105231078.png" alt="$w = d - B^{(k)}u$" style="width:68px;height:11px;">.</p><p>I'm going to spare you the <a href="https://en.wikipedia.org/wiki/Broyden%E2%80%93Fletcher%E2%80%93Goldfarb%E2%80%93Shanno_algorithm">algebra</a>, suffice it to say that both extend the intuition of Broyden's method to Hessian approximation and BFGS solves the dual problem that DFP solves. In practice BFGS is the market leader.</p><p>Miranda and Fackler implement Steepest <b>Ascent</b>, DFP and BFGS updating in their maximization function <tt>qnewton</tt>.</p><p>The MATLAB native function <tt>fminunc</tt> implements BFGS updating under the option <tt>'Algorithm' = 'quasi-newton'</tt> (which is also the default).</p><p>How does it work on our toy problem. First, let's writhe our function out explicilty:</p><pre class="error">File 'qfunc.m' not found.</pre><p>Now we can call <tt>fminunc</tt>:</p><pre class="codeinput">options = optimoptions(<span class="string">'fminunc'</span>,<span class="string">'Algorithm'</span>,<span class="string">'quasi-newton'</span>,<span class="keyword">...</span>
+          <span class="string">'SpecifyObjectiveGradient'</span>,true, <span class="string">'Display'</span>,<span class="string">'iter'</span>);
+[xstar, fstar] = fminunc(<span class="string">'qfunc'</span>, [1, 1], options);
+disp(xstar);
+</pre><pre class="codeoutput error">Undefined function 'qfunc' for input arguments of type 'double'.
+
+Error in fminunc (line 287)
+        [f,GRAD] = feval(funfcn{3},x,varargin{:});
+
+Error in optim2 (line 164)
+[xstar, fstar] = fminunc('qfunc', [1, 1], options);
+
+Caused by:
+    Failure in initial objective function evaluation. FMINUNC cannot continue</pre><p>Can also use numerical differentiation, we get more function evaluations, but the same number of iterations:</p><pre class="codeinput">options = optimoptions(<span class="string">'fminunc'</span>,<span class="string">'Algorithm'</span>,<span class="string">'quasi-newton'</span>,<span class="keyword">...</span>
+          <span class="string">'SpecifyObjectiveGradient'</span>,false, <span class="string">'Display'</span>,<span class="string">'iter'</span>);
+fminunc(<span class="string">'qfunc'</span>, [1, 1], options);
+</pre><p>That's (almost) everything I have for determining the direction, now let's see what the "step-size" column is all about...</p><h2 id="9">Line Search</h2><p>Once we have settled on a direction, we may want to try step sizes other than 1 to optimize the objective as much as posible in the chosen direction. This is simply a 1 dimensional search problem. If the search direction is <img src="optim2_eq05352630751280754521.png" alt="$s_k$" style="width:9px;height:7px;"> then we want to solve:</p><p><img src="optim2_eq09669343640822384692.png" alt="$$\min_{\lambda} f(x^{(k)} + \lambda s^k)$$" style="width:81px;height:18px;"></p><p>We could use golden-search for this, but we don't typically because it spends too much time optimizing intermediate problems, only need a very approximate solution.</p><p>Hence, it is useful to use backtracking based on the <b>Armijo-Goldstein condition</b>, for an initial step size <img src="optim2_eq05961583324752331796.png" alt="$\alpha_0$" style="width:11px;height:7px;"> and control parameters <img src="optim2_eq15813736081985251757.png" alt="$\tau \in (0,1)$" style="width:43px;height:11px;"> and <img src="optim2_eq07521185306388091030.png" alt="$c \in (0,1)$" style="width:42px;height:11px;">:</p><div><ol><li>Set <img src="optim2_eq01310630224429653596.png" alt="$t = -c s_k' \nabla f(x)$" style="width:72px;height:12px;"> and iteration counter <img src="optim2_eq05420877860405661213.png" alt="$j = 0$" style="width:26px;height:10px;"></li><li>While <img src="optim2_eq12327977297060658719.png" alt="$f(x) - f(x + \alpha_j s^k) &gt; \alpha_j t$" style="width:120px;height:13px;">, increment <img src="optim2_eq07225361342133155126.png" alt="$j$" style="width:5px;height:10px;"> and set <img src="optim2_eq03953668761422411965.png" alt="$\alpha_j = \tau \alpha_{j-1}$" style="width:52px;height:9px;">.</li><li>Return <img src="optim2_eq14090156484357033325.png" alt="$x + \alpha_j s^k$" style="width:40px;height:13px;"> as next iterate.</li></ol></div><p>In words, backtrack until the improvement in <img src="optim2_eq18096895394918367257.png" alt="$f$" style="width:6px;height:10px;"> is at least <img src="optim2_eq08422257486649890878.png" alt="$c$" style="width:5px;height:6px;"> of that predicted by taking the linear Taylor approximation around <img src="optim2_eq12428413953531653171.png" alt="$x$" style="width:6px;height:6px;">.</p><p>There are many alternative line search methods, (see Miranda and Fackler for several), however this captures the basic intuition.</p><p>While <tt>fminunc</tt> has limited flexibility in line search options, the Miranda and Fackler package <tt>qnewton</tt> is easier to customize, but I've found the MATLAB functions to be more robust.</p><h2 id="10">Conjugate Gradient Iterations</h2><p>BFGS is a workhorse for "small" or "medium" size problems which are roughly problems up to 100 variables. However even though they only approximate a Hessian, they still need to store it.  For problems with 1000+ variables, this will be costly, unless we are able to exploit sparsity.</p><p>Like stepest descent, conjugate gradient methods work with ONLY gradient information. Keeping memory needs light.</p><p>They use previous iterates help deal with the curvature of the problem.</p><p>Consider a quadratic function:</p><p><img src="optim2_eq12228466615199688317.png" alt="$$ f(x) = \frac{1}{2}x^T A x + b^T x + c $$" style="width:120px;height:23px;"></p><p>If we optimize along one direction <img src="optim2_eq11776305044305525613.png" alt="$u$" style="width:6px;height:6px;"> (in steepest descent (u = -\nabla f$), then we will solve: <img src="optim2_eq08399888196790542569.png" alt="$$ (Ax + b)^T u = 0  $$" style="width:73px;height:13px;"></p><p>The problem would be solved if this holds for any <img src="optim2_eq11776305044305525613.png" alt="$u$" style="width:6px;height:6px;">. Next we choose a new direction <img src="optim2_eq03158747792916826732.png" alt="$v$" style="width:5px;height:6px;">, however we don't want to violate the conditions we've already solved. If <img src="optim2_eq03158747792916826732.png" alt="$v$" style="width:5px;height:6px;"> is <b>conjugate</b> to <img src="optim2_eq11776305044305525613.png" alt="$u$" style="width:6px;height:6px;"> with respect to <img src="optim2_eq05147331747641807187.png" alt="$A$" style="width:8px;height:8px;">:</p><p><img src="optim2_eq06725521981029245592.png" alt="$$ v^T A u = 0 $$" style="width:46px;height:11px;"></p><p>We know that maximizing along <img src="optim2_eq03158747792916826732.png" alt="$v$" style="width:5px;height:6px;"> won't violate the conditions we satisfied for <img src="optim2_eq11776305044305525613.png" alt="$u$" style="width:6px;height:6px;">.</p><p>Note that a set of conjugate directions form a basis, if the problem were actually quadratic in <img src="optim2_eq04785765654952935550.png" alt="$R^N$" style="width:16px;height:10px;">, this algorithm would solve the problem in <img src="optim2_eq03672095713503266041.png" alt="$N$" style="width:10px;height:8px;"> steps. Of course, for us that quadratic intuition is just an approximation.</p><p>Usually, congugate-gradient methods are combined with steepest descent, that is we will ``deflect'' the steepest descent direction (the gradient) such that it is conjugate with the previous iterate, this leads to the updating rule:</p><p><img src="optim2_eq18368892885854296378.png" alt="$$ s^{(k+1)} = -\nabla f(x^{(k+1)}) + \frac{||\nabla f(x^{(k+1)})||^2}{||\nabla f(x^{(k)})||^2} $$" style="width:183px;height:28px;"></p><p>Some notes:</p><div><ul><li>In practice, since the problem is not quadratic, many implementations will "reset" by using a standard steepest descent step every <img src="optim2_eq08984225997457563733.png" alt="$n$" style="width:7px;height:6px;"> (number of dimensions) iterations.</li><li>KNITRO makes used of conjugate-gradient iterations as a sort of "sub-iteration" in the context of a BFGS, L-BFGS or full newton search.</li><li>Here is an example of how to call KNITRO, but it will only work if you have a license (PSU lab computers and the cluster do, your laptop probably doesn't).</li><li>It will not use CG iterations because this problem is too small.</li></ul></div><pre class="codeinput">[sol] = knitromatlab(@(x) qfunc(x), [1, 1])
+</pre><h2 id="11">Limited Memory BFGS (L-BFGS)</h2><p>What if we want to use a quasi-newton method, but our problem is too large? L-BFGS avoids storing the hessian and instead approximates it from the past iteration information. It specifically stores the last <img src="optim2_eq11319871188381094158.png" alt="$m$" style="width:10px;height:6px;"> values of:</p><p><img src="optim2_eq10228652685544655731.png" alt="$$ s_j = x^{(j)} - x^{(j-1)} $$&#xA;$$ y_j = \nabla f(x^{(j)}) - \nabla f (x^{(j-1)})$$" style="width:212px;height:14px;"></p><p>It should be clear that this is just the secant information from the last <img src="optim2_eq11319871188381094158.png" alt="$m$" style="width:10px;height:6px;"> iterations. Then an approximation of the hessian using this information can be written recursively:</p><p><img src="optim2_eq14940592531975672026.png" alt="$$ H_j^{-1} \approx (I - \frac{s_j y_j^T}{y_j^T s_j}) H^{-1}_{j-1} (I&#xA;-\frac{y_j s_j^T}{y_j^T s_j}) + \frac{s_j s_j^T}{y_j^Ts_j} = B$$" style="width:222px;height:31px;"></p><p>Where we start with <img src="optim2_eq00776901470873969844.png" alt="$H_{k-m}^{-1} = I$" style="width:47px;height:14px;">.</p><p>Of course, we don't want to actually construct an approximation for <img src="optim2_eq06431028174962635762.png" alt="$H^{-1}$" style="width:19px;height:10px;">, but we don't have to, we can compute the next step as:</p><p><img src="optim2_eq00807940732382494906.png" alt="$$ s_{j+1} = B \nabla f(x^{(j)}) $$" style="width:82px;height:14px;"></p><p>Which can be computed via a series of vector multiplications. This means the storage and cost of iteration will be <img src="optim2_eq06565805933452459892.png" alt="$O(mn)$" style="width:32px;height:11px;"> instead of <img src="optim2_eq10473944910243465017.png" alt="$O(n^2)$" style="width:27px;height:12px;">, useful if <img src="optim2_eq03834820995680122737.png" alt="$m \ll n$" style="width:33px;height:7px;">.</p><p>Final Thoughts:</p><div><ul><li>I've used L-BFGS mostly on large scaled constrained problems, a big decision is just how large to make <img src="optim2_eq11319871188381094158.png" alt="$m$" style="width:10px;height:6px;">. In principle larger is better, but each iteration will be slower.</li><li>I would never try to code this up myself, MATLAB and KNITRO (although MATLAB for <tt>fmincon</tt>, only, not <tt>fminunc</tt>).</li><li>For both BFGS and L-BFGS, the Hessian approximation is path-dependent. This means if your algorithm converges, but not to a local minium (tolX), if you re-start it, it may be able to continue progressing to a local min.</li><li>All of these Hessian approximations are going to be bad for inference. If you are computing standard errors, either compute the full finite difference Hessian yourself (or make sure that is what your solver returns), or use the outer-product approximation.</li></ul></div><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2018a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Lecture 6 - Direction-Set and Quasi-Newton Optimization Methods
+%
+% Last week we examined optimization algorithms, ending with Newton's
+% Method. This week we'll go over a series of methods inspired by Newton's
+% method which are commonly implemented in practice. 
+%
+
+%% Stopping Criteria for Newton and Quasi-Newton Methods
+%
+% Unlike bracketing, or the area of the simplex for Nelder-Mead. We can't
+% simply think about a shrinking interval for Newton methods. Instead, we
+% use two stopping rules based on the information we've computed.
+%
+% First, has the sequence of guesses converged: 
+%
+% $$ ||x^{(k)} - x^{(k+1)}|| < \varepsilon(1 + ||x^{(k)}||)$
+%
+% This is a relative stopping rule, since it is scaled by the norm of
+% $x^{(k)}$, the 1 simply deals with the case where $x^{(k)}$ is near the origin. 
+% 
+% Second, we want to know if we are at a local miniumum: 
+%
+% $$ ||\nabla f(x^{(k)}) || < \delta(1 + f(x^{(k)}))$$
+%
+% If this condition does not hold, then we have converged to a non-optimal
+% point, and cannot claim the problem has been solved. Even if it does
+% hold, we want to also check the first condition to make sure the problem
+% doesn't just have a ``plateau'' near the optimum. 
+%
+% How to choose $\delta$ and $\varepsilon$?
+%
+% * Can't be lower (or same order as) machine epsilon, $eps$. 
+% * Should not be tighter than the accuracy with which you are computing $\nabla
+% f(x^{(k)})$ (finite differences?).
+% * Often use values between $eps^{(1/4)}$ and $eps^{(1/2)}$. 
+
+%% Overview: Generic Direction Set Methods
+% Judd offers a ``generic
+% algorithm'' which incorporates both a Hessian approximation and a line
+% search: 
+%
+% *Initialization:* Choose initial guess $x^{(0)}$ and stopping parameters
+% $\delta$ and $\varepsilon > 0$. 
+%
+% # Compute search direction $s^k$. 
+% # Find $\lambda_k$ that solves $\min_{\lambda} f(x^{(k)} + \lambda s^k)$. 
+% # Assign $x^{(k+1)} \rightarrow x^{(k)} + \lambda_k s^k$. 
+% # If $||x^{(k)} - x^{(k+1)}|| < \epsilon(1 + ||x^k||)$ go to 5, else, go
+% to 1. 
+% # If $||\nabla f(x^{(k)}) || < \delta(1 + f(x^{(k)}))$, Return convergence to local optimum,
+% else, return convergence to non-optimal point. 
+%
+% The two ingredients are picking a direction, and a step length. First,
+% let's consider how to pick a direction, keeping step length fixed. 
+%
+%% Steepest Descent
+%
+% The simplist quasi-Newton method simply replaces the Hessian with the
+% identity matrix. This means the direction is entirely determined by the
+% gradient. 
+%
+% $$ x^{(k+1)} \leftarrow x^{(k)} - \nabla f(x^{(k)}) $$
+%
+% Advantages and disadvantages: 
+%
+% * Always moves towards an optimum. 
+% * Ignores curvature information
+% * Linear convergence only. 
+%
+% In practice, this is not likely to work unless we dampen the step length.
+% either by adding a line search or simply shortening the step size using a
+% constant factor $a$. Here is an implemention edited from our Newton code last
+% week:
+%
+% Recall we want to minimize:
+%
+% $$f(x)=(x_1-x_2)^4+2x_1^2+x_2^2-x_1+2x_2$$
+%
+% So we use:
+n=0;            %initialize iteration counter 
+focerr=1;          %initialize error 
+x = [1; 1];
+%x=[.05;-.5];        %set starting value
+%
+a = 0.09; %dampen value, if we set this anywhere near 1, things will blow up.
+
+%Computation loop 
+while focerr>1e-5&n<100 
+    %Compute Gradient
+    gradf=[4*(x(1)-x(2))^3+4*x(1)-1;...
+          -4*(x(1)-x(2))^3+2*x(2)+2];                            
+    
+    %Compute Hessian (only for Newton)
+    %Hf=     [12*(x(1)-x(2))^2+4,  -12*(x(1)-x(2))^2;...           
+    %        -12*(x(1)-x(2))^2,    12*(x(1)-x(2))^2+2]; 
+    
+    %Perform Iteration
+      %Newton: 
+      %y=x-Hf\gradf 
+      %Steepest Descent:
+      y = x - a*gradf;
+    
+    x=y;                                                          
+    n=n+1; 
+    
+    %Calculate FOC Error
+    focerr= norm(gradf);                            
+                                                          
+end 
+n,x,focerr,        %display end values
+
+%%
+% Recall that Newton's method solved this problem in only 8 iterations.
+% Also, check what happens when we raise $a$ closer to 1. 
+
+%% Davidson-Fletcher-Powell (DFP) and Broyden-Fletcher-Goldfarb-Shano (BFGS)
+%
+% Steepest descents biggest disadvantage is that it completely ignores
+% curvature. DFP and BFGS are more akin to our nonlinear equations
+% quasi-Newton methods in that they use consecutive iterates to estimate
+% curvature. 
+%
+% Both satisfy the *quasi-Newton* Condition. Whereas a Newton step is approximately,  
+%
+% $$ x^{(k+1)} - x^{(k)} = d^{(k)} \approx  H^{-1}(x^{(k)}) [ \nabla f(x^{(k)} + d^{(k)} ) - \nabla f(x^{(k)})] $$
+%
+% Where the approximation comes from a finite difference intuition. The
+% quasi-Newton condition selects a hessian approxmation to satisfies this exactly: 
+%
+% $$ d^{(k)} =  B^{(k)} [ \nabla f(x^{(k)} + d^{(k)} ) - \nabla f(x^{(k)})] $$
+%
+% DFP and BFGS are simply two different updating schemes that satisfy this
+% condtion. They are both generalizations of the secant method.
+%
+% DFP: 
+%
+% $$ B^{(k+1)} \leftarrow B^{(k)} + \frac{dd^T}{d^T u} - \frac{B^{(k)} u u^T B}{u^T B^{(k)} u} $$
+%
+% where $u = \nabla f(x^{(k+1)}) - \nabla f(x^{(k)})$. 
+%
+% BFGS: 
+%
+% $$ B^{(k+1)} \leftarrow B^{(k)} + \frac{1}{d^T u} \left( wd^T + dw^T - \frac{w^Tu}{d^T u} dd^T \right) $$
+%
+% where $w = d - B^{(k)}u$. 
+%
+% I'm going to spare you the <https://en.wikipedia.org/wiki/Broyden%E2%80%93Fletcher%E2%80%93Goldfarb%E2%80%93Shanno_algorithm algebra>, suffice it to say that both extend the intuition of Broyden's method to Hessian approximation and BFGS solves
+% the dual problem that DFP solves. In practice BFGS is the market leader. 
+%
+% Miranda and Fackler implement Steepest *Ascent*, DFP and BFGS updating in
+% their maximization function |qnewton|.
+%
+% The MATLAB native function |fminunc| implements BFGS updating under the
+% option |'Algorithm' = 'quasi-newton'| (which is also the default). 
+%
+% How does it work on our toy problem. First, let's writhe our function out
+% explicilty:
+%
+% <include> qfunc.m </include>
+%%
+% Now we can call |fminunc|:
+options = optimoptions('fminunc','Algorithm','quasi-newton',...
+          'SpecifyObjectiveGradient',true, 'Display','iter');
+[xstar, fstar] = fminunc('qfunc', [1, 1], options);
+disp(xstar);
+
+%%
+% Can also use numerical differentiation, we get more function evaluations,
+% but the same number of iterations:
+options = optimoptions('fminunc','Algorithm','quasi-newton',...
+          'SpecifyObjectiveGradient',false, 'Display','iter');
+fminunc('qfunc', [1, 1], options);
+
+%%
+% That's (almost) everything I have for determining the direction, now let's see
+% what the "step-size" column is all about...
+
+%% Line Search
+%
+% Once we have settled on a direction, we may want to try step sizes other
+% than 1 to optimize the objective as much as posible in the chosen
+% direction. This is simply a 1 dimensional search problem. If the search
+% direction is $s_k$ then we want to solve: 
+%
+% $$\min_{\lambda} f(x^{(k)} + \lambda s^k)$$
+%
+% We could use golden-search for this, but we don't typically because it
+% spends too much time optimizing intermediate problems, only need a very
+% approximate solution. 
+%
+% Hence, it is useful to use backtracking based on the *Armijo-Goldstein
+% condition*, for an initial step size $\alpha_0$ and control parameters
+% $\tau \in (0,1)$ and $c \in (0,1)$:
+%
+% # Set $t = -c s_k' \nabla f(x)$ and iteration counter $j = 0$
+% # While $f(x) - f(x + \alpha_j s^k) > \alpha_j t$, increment $j$ and set
+% $\alpha_j = \tau \alpha_{j-1}$.
+% # Return $x + \alpha_j s^k$ as next iterate. 
+%
+% In words, backtrack until the improvement in $f$ is at least $c$ of that
+% predicted by taking the linear Taylor approximation around $x$. 
+%
+% There are many alternative line search methods, (see Miranda and Fackler
+% for several), however this captures the basic intuition. 
+%
+% While |fminunc| has limited flexibility in line search options, the
+% Miranda and Fackler package |qnewton| is easier to customize, but I've
+% found the MATLAB functions to be more robust. 
+
+%% Conjugate Gradient Iterations
+%
+% BFGS is a workhorse for "small" or "medium" size problems which are
+% roughly problems up to 100 variables. However even though they only
+% approximate a Hessian, they still need to store it.  For problems with
+% 1000+ variables, this will be costly, unless we are able to exploit
+% sparsity. 
+%
+% Like stepest descent, conjugate gradient methods work with ONLY gradient
+% information. Keeping memory needs light. 
+%
+% They use previous iterates help deal with the curvature of the problem. 
+%
+% Consider a quadratic function: 
+% 
+% $$ f(x) = \frac{1}{2}x^T A x + b^T x + c $$
+%
+% If we optimize along one direction $u$ (in steepest descent (u = -\nabla
+% f$), then we will solve: 
+% $$ (Ax + b)^T u = 0  $$
+%
+% The problem would be solved if this holds for any $u$. 
+% Next we choose a new direction $v$, however we don't want to violate the
+% conditions we've already solved. If $v$ is *conjugate* to $u$ with respect to $A$:
+%
+% $$ v^T A u = 0 $$
+%
+% We know that maximizing along $v$ won't violate the conditions we
+% satisfied for $u$. 
+%
+% Note that a set of conjugate directions form a basis, if the problem were
+% actually quadratic in $R^N$, this algorithm would solve the problem in
+% $N$ steps. Of course, for us that quadratic intuition is just an
+% approximation. 
+% 
+% Usually, congugate-gradient methods are combined with steepest descent,
+% that is we will ``deflect'' the steepest descent direction (the
+% gradient) such that it is conjugate with the previous iterate, this leads
+% to the updating rule: 
+%
+% $$ s^{(k+1)} = -\nabla f(x^{(k+1)}) + \frac{||\nabla f(x^{(k+1)})||^2}{||\nabla f(x^{(k)})||^2} $$
+% 
+% Some notes: 
+%
+% * In practice, since the problem is not quadratic, many implementations
+% will "reset" by using a standard steepest descent step every $n$ (number
+% of dimensions) iterations. 
+% * KNITRO makes used of conjugate-gradient iterations as a sort of
+% "sub-iteration" in the context of a BFGS, L-BFGS or full newton search. 
+% * Here is an example of how to call KNITRO, but it will only work if you
+% have a license (PSU lab computers and the cluster do, your laptop
+% probably doesn't). 
+% * It will not use CG iterations because this problem is too small. 
+
+[sol] = knitromatlab(@(x) qfunc(x), [1, 1])
+
+%% Limited Memory BFGS (L-BFGS)
+%
+% What if we want to use a quasi-newton method, but our problem is too
+% large? L-BFGS avoids storing the hessian and instead approximates it from
+% the past iteration information. It specifically stores the last $m$ values of: 
+%
+% $$ s_j = x^{(j)} - x^{(j-1)} $$
+% $$ y_j = \nabla f(x^{(j)}) - \nabla f (x^{(j-1)})$$
+%
+% It should be clear that this is just the secant information from the last $m$ iterations.  
+% Then an approximation of the hessian using this information can be
+% written recursively: 
+%
+% $$ H_j^{-1} \approx (I - \frac{s_j y_j^T}{y_j^T s_j}) H^{-1}_{j-1} (I
+% -\frac{y_j s_j^T}{y_j^T s_j}) + \frac{s_j s_j^T}{y_j^Ts_j} = B$$
+%
+% Where we start with $H_{k-m}^{-1} = I$.
+%
+% Of course, we don't want to actually construct an approximation for
+% $H^{-1}$, but we don't have to, we can compute the next step as: 
+%
+% $$ s_{j+1} = B \nabla f(x^{(j)}) $$
+%
+% Which can be computed via a series of vector multiplications. This means
+% the storage and cost of iteration will be $O(mn)$ instead of $O(n^2)$,
+% useful if $m \ll n$. 
+%
+% Final Thoughts: 
+%
+% * I've used L-BFGS mostly on large scaled constrained problems, a big
+% decision is just how large to make $m$. In principle larger is better,
+% but each iteration will be slower. 
+% * I would never try to code this up myself, MATLAB and KNITRO (although
+% MATLAB for |fmincon|, only, not |fminunc|). 
+% * For both BFGS and L-BFGS, the Hessian approximation is path-dependent.
+% This means if your algorithm converges, but not to a local minium (tolX),
+% if you re-start it, it may be able to continue progressing to a local min. 
+% * All of these Hessian approximations are going to be bad for inference.
+% If you are computing standard errors, either compute the full finite
+% difference Hessian yourself (or make sure that is what your solver
+% returns), or use the outer-product approximation. 
+
+##### SOURCE END #####
+--></body></html>

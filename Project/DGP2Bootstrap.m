@@ -8,7 +8,6 @@ Rep=1;
 Rej=0;
 RepM=1;
 B=400;
-qN=5;
 
 tic
  for R=1:Rep
@@ -41,7 +40,6 @@ thetahat= fminsearch(L,theta0);
 pXhat=F(thetahat); % Estimated Propensity Score
 
 % This part is to eliminate unbalanced original sample. 
-qN=5;
 len=floor(N/qN);
 [fvalue,xvalue]=ecdf(pXhat);
 xval=xvalue(2:(N+1));
@@ -57,6 +55,7 @@ for i=1:qN
     block(i+1)= find(PSranking<=(i/qN),1,'last');
 end
 
+
 for i=1:N
     ipsrank= find(Index==i);
     block(1)=0;
@@ -66,9 +65,9 @@ for i=1:N
         iblock(i)=qN;
     end
     if W(i)==0
-        Blocksize(iblo,1)=Blocksize(iblo,1)+1;
+        Blocksize(iblock(i),1)=Blocksize(iblock(i),1)+1;
     else 
-        Blocksize(iblo,2)=Blocksize(iblo,2)+1;
+        Blocksize(iblock(i),2)=Blocksize(iblock(i),2)+1;
     end
 end
 if ~all(Blocksize(:)~=0)
@@ -269,7 +268,7 @@ tauhats= sum( (2*W-ones(N,1)).*(Y-Ybar./M) )/N; % tauhat based on thetahats
 e2Wi=zeros(N,1);
 e1=zeros(N,1);
 K= @(u) ( 0.75*(ones(N,1)-u.^2).*indicator(u) ); % The kernel to be used 
-h= 1/sqrt(N); % bandwidth 
+h= 3/sqrt(N); % bandwidth 
 for i=1:N
         muwip0= sum(Y.*W0.*K( (pXhattemp- pXhattemp(i))/h) )/sum(W0.*K( (pXhattemp- pXhattemp(i))/h) ); 
         muwip1= sum(Y.*W.*K( (pXhattemp- pXhattemp(i))/h) )/sum(W.*K( (pXhattemp- pXhattemp(i))/h) );
@@ -311,7 +310,7 @@ teststat=sqrt(N)*(tauhat-tau);
  toc
  time=toc/60;
  RejProb= Rej/Rep; 
- fprintf('DGP1 with N= %d, rejection probabity is %1.3f and time is %4.2f mins\n',N, RejProb, time);
+fprintf('DGP2 with N= %d and qN=%d, rejection probabity is %1.3f and time is %4.2f mins\n\n',N, qN, RejProb, time);
 % The key idea of this bootstrap method is to find the critical value for
 % tauhat and use the fact that statistic T has the same asymptotic
 % distribution as sqrt(N)(tauhat-tau). In other words, the bootstrap

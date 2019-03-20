@@ -4,11 +4,10 @@
 rng(200);
 alpha=0.05;
 M=1;
-Rep=1000;
+Rep=1;
 Rej=0;
 RepM=1;
 B=400;
-qN=5;
 
 tic 
  for R=1:Rep
@@ -41,7 +40,6 @@ thetahat= fminsearch(L,theta0);
 pXhat=F(thetahat); % Estimated Propensity Score
 
 % This part is to eliminate unbalanced sample. 
-qN=5;
 len=floor(N/qN);
 [fvalue,xvalue]=ecdf(pXhat);
 xval=xvalue(2:(N+1));
@@ -310,7 +308,7 @@ teststat=sqrt(N)*(tauhat-tau);
  toc;
  time=toc/60;
  RejProb= Rej/Rep;
- fprintf('DGP1 with N= %d, rejection probabity is %1.3f and time is %4.2f mins\n',N, RejProb, time);
+fprintf('DGP3 with N= %d and qN=%d, rejection probabity is %1.3f and time is %4.2f mins\n\n',N, qN, RejProb, time);
 
 % The key idea of this bootstrap method is to find the critical value for
 % tauhat and use the fact that statistic T has the same asymptotic

@@ -8,7 +8,6 @@ Rep=1;
 Rej=0;
 RepM=1;
 B=400;
-qN=5;
 
 tic
 
@@ -43,7 +42,6 @@ thetahat= fminsearch(L,theta0);
 pXhat=F(thetahat); % Estimated Propensity Score
 
 % This part is to eliminate unbalanced original sample. 
-qN=5;
 len=floor(N/qN);
 [fvalue,xvalue]=ecdf(pXhat);
 xval=xvalue(2:(N+1));
@@ -58,7 +56,6 @@ block= zeros((qN+1),1);
 for i=1:qN
     block(i+1)= find(PSranking<=(i/qN),1,'last');
 end
-
 
 for i=1:N
     ipsrank= find(Index==i);
@@ -281,7 +278,7 @@ e1=zeros(N,1);
 % series3polinominals;
 
 %% Kernel estimation for muwip0 and muwip1
-% serieskernel; 
+serieskernel; 
 
 
 e2=zeros(N,2);
@@ -318,7 +315,7 @@ teststat=sqrt(N)*(tauhat-tau);
  RejProb= Rej/Rep;
  toc 
  time=toc/60;
-fprintf('DGP1 with N= %d, rejection probabity is %1.3f and time is %4.2f mins\n',N, RejProb, time);
+fprintf('DGP1 with N= %d and qN=%d, rejection probabity is %1.3f and time is %4.2f mins\n\n',N, qN, RejProb, time);
 % The key idea of this bootstrap method is to find the critical value for
 % tauhat and use the fact that statistic T has the same asymptotic
 % distribution as sqrt(N)(tauhat-tau). In other words, the bootstrap
