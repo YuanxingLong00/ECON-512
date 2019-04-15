@@ -3,15 +3,15 @@
 % First, Simulation with DGP taken from Abadie and Imbens (2016).
 % DGP 1 one-sided test 
 clear;
-rng(135)
+rng(246)
 N=1000;
-N
+R=1000;
 Rej=0;
 alpha=0.05;
 Crit= norminv(1-alpha);
 tic 
 
-for k=1:1000
+for k=1:R
 X1= rand(N,1)-0.5*ones(N,1);
 X2= rand(N,1)-0.5*ones(N,1);
 X=[X1 X2];
@@ -146,7 +146,7 @@ end
 end
 toc 
 time =toc/60
-RejProb=Rej/1000
+RejProb=Rej/R
 
 
 %% The simulated rejection probability is 5.4% which is correct now. 
