@@ -5,8 +5,8 @@ clear;
 rng(246);
 N=500;
 alpha=0.05;
-B=500;
-R=500;
+B=400;
+R=1000;
 Rej=0;
 
 for r=1:R
@@ -104,7 +104,6 @@ teststat=sqrt(N)*(tauhat-tau);
  if teststat>Crit
      Rej=Rej+1;
  end
- r
  
 end
 RejProb= Rej/R
@@ -117,6 +116,10 @@ RejProb= Rej/R
 % This bootstrap is called naive bootstrap in the Abadie and Imbens (2008).
 % This bootstrap does not work for sure. 
 
+
+% N=100, rejection probability is 11%
+% N=200, rejection probability is 10.6% 
+% N=500, rejection probability is 9.5%
 
 
 

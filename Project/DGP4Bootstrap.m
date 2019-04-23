@@ -1,13 +1,16 @@
 %%%% This code want to implement the Bootstrap Inference Method.
 %%%% DGP4
 %%%% H0: tau<=5 vs H1: tau>5
+clear;
 rng(135);
+qN=5;
+N=1000;
 alpha=0.05;
 M=1;
 Rep=1;
 Rej=0;
 RepM=1;
-B=400;
+B=1000;
 
 tic
  for R=1:Rep

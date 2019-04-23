@@ -1,13 +1,16 @@
 %%%% This code want to implement the Bootstrap Inference Method.
 %%%% DGP3
 %%%% H0: tau<=5 vs H1: tau>5
+clear;
 rng(200);
+N=1000;
+qN=5;
 alpha=0.05;
 M=1;
 Rep=1;
 Rej=0;
 RepM=1;
-B=400;
+B=1000;
 
 tic 
  for R=1:Rep
@@ -309,7 +312,7 @@ teststat=sqrt(N)*(tauhat-tau);
  time=toc/60;
  RejProb= Rej/Rep;
 fprintf('DGP3 with N= %d and qN=%d, rejection probabity is %1.3f and time is %4.2f mins\n\n',N, qN, RejProb, time);
-
+hist(Tdistr, 20);
 % The key idea of this bootstrap method is to find the critical value for
 % tauhat and use the fact that statistic T has the same asymptotic
 % distribution as sqrt(N)(tauhat-tau). In other words, the bootstrap
